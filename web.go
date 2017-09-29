@@ -5,11 +5,13 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/prometheus/common/model"
+	"fmt"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/snappy"
+	"github.com/prometheus/common/model"
 	promremote "github.com/prometheus/prometheus/storage/remote"
+	"github.com/solarwinds/p2l/promadapter"
 )
 
 // receiveHandler implements the code path for handling incoming Prometheus metrics
@@ -22,38 +24,45 @@ func receiveHandler() http.Handler {
 			return
 		}
 
-		data, err := timeseriesFromRequestData(compressed)
+		data, err := processRequestData(compressed)
 		if err != nil {
 			log.Println(err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
-		for _, ts := range data {
-			m := make(model.Metric, len(ts.Labels))
-			for _, l := range ts.Labels {
-				m[model.LabelName(l.Name)] = model.LabelValue(l.Value)
-			}
-			log.Println(m)
+		mc := promadapter.PromDataToLibratoMeasurements(&data)
 
-			for _, s := range ts.Samples {
-				log.Printf("  %f %d\n", s.Value, s.TimestampMs)
-			}
+		for _, measurement := range mc {
+			fmt.Printf("Metric: %+v\n", measurement)
 		}
 	})
 }
 
-// timeseriesFromRequestData produces a slice of Prometheus remote storage TimeSeries from the request
-func timeseriesFromRequestData(reqBytes []byte) ([]*promremote.TimeSeries, error) {
-	var ts []*promremote.TimeSeries
+// processRequestData returns a Prometheus remote storage WriteRequest from the raw HTTP body data
+func processRequestData(reqBytes []byte) (promremote.WriteRequest, error) {
+	var req promremote.WriteRequest
 	reqBuf, err := snappy.Decode(nil, reqBytes)
 	if err != nil {
-		return ts, err
+		return req, err
 	}
 
-	var req promremote.WriteRequest
 	if err := proto.Unmarshal(reqBuf, &req); err != nil {
-		return ts, err
+		return req, err
 	}
-	return req.Timeseries, nil
+	return req, nil
+}
+
+func printData(data *promremote.WriteRequest) {
+	for _, ts := range data.Timeseries {
+		m := make(model.Metric, len(ts.Labels))
+		for _, l := range ts.Labels {
+			m[model.LabelName(l.Name)] = model.LabelValue(l.Value)
+		}
+		log.Println(m)
+
+		for _, s := range ts.Samples {
+			log.Printf("  %f %d\n", s.Value, s.TimestampMs)
+		}
+	}
 }
