@@ -34,7 +34,11 @@ func receiveHandler() http.Handler {
 		mc := promadapter.PromDataToLibratoMeasurements(&data)
 
 		for _, measurement := range mc {
-			fmt.Printf("Metric: %+v\n", measurement)
+			fmt.Printf("\nMetric name: '%s' \n", measurement.Name)
+			fmt.Printf("\t\tTags: ")
+			for _, tag := range measurement.Tags {
+				fmt.Printf("\n\t\t\t%s: %s", tag.Key, tag.Value)
+			}
 		}
 	})
 }

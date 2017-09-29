@@ -11,7 +11,7 @@ import (
 // client library.
 //
 
-func PromDataToLibratoMeasurements(req *promremote.WriteRequest) librato.MeasurementCollection {
+func PromDataToLibratoMeasurements(req *promremote.WriteRequest) []*librato.Measurement {
 	return samplesToMeasurementSubmission(writeRequestToSamples(req))
 }
 
@@ -37,16 +37,30 @@ func writeRequestToSamples(req *promremote.WriteRequest) model.Samples {
 }
 
 // samplesToMeasurementSubmission converts Prometheus common model Samples to a collection of Librato Measurements
-func samplesToMeasurementSubmission(samples model.Samples) librato.MeasurementCollection {
-	measurements := make(librato.MeasurementCollection, len(samples))
-
+func samplesToMeasurementSubmission(samples model.Samples) []*librato.Measurement {
+	var measurements []*librato.Measurement
 	for _, s := range samples {
 		m := &librato.Measurement{
-			Name:  s.Metric.String(),
+			Name:  string(s.Metric[model.MetricNameLabel]),
 			Value: float64(s.Value),
 			Time:  int64(s.Timestamp),
+			Tags:  labelsToTags(s),
 		}
 		measurements = append(measurements, m)
 	}
 	return measurements
+}
+
+// labelsToTags converts the Metric's associated Labels to Librato Tags
+func labelsToTags(sample *model.Sample) []*librato.MeasurementTag {
+	var mt []*librato.MeasurementTag
+	for k, v := range sample.Metric {
+		if k == model.MetricNameLabel {
+			continue
+		}
+
+		tag := &librato.MeasurementTag{Key: string(k), Value: string(v)}
+		mt = append(mt, tag)
+	}
+	return mt
 }
