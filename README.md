@@ -1,5 +1,5 @@
 # Librato & AppOptics as Prometheus remote storage provider
-An implementation of a Prometheus [remote storage adapter] (https://github.com/prometheus/prometheus/tree/master/documentation/examples/remote_storage/remote_storage_adapter) for Librato and AppOptics.
+An implementation of a Prometheus [remote storage adapter](/prometheus/prometheus/tree/master/documentation/examples/remote_storage/remote_storage_adapter) for Librato and AppOptics.
 # Deployment
 Two methods of deployment supported:
 1. Deployment of a binary to indvidual system
