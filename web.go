@@ -9,8 +9,9 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/snappy"
-	"github.com/prometheus/common/model"
 	promremote "github.com/prometheus/prometheus/storage/remote"
+	"github.com/solarwinds/p2l/config"
+	"github.com/solarwinds/p2l/librato"
 	"github.com/solarwinds/p2l/promadapter"
 )
 
@@ -33,12 +34,13 @@ func receiveHandler() http.Handler {
 
 		mc := promadapter.PromDataToLibratoMeasurements(&data)
 
-		for _, measurement := range mc {
-			fmt.Printf("\nMetric name: '%s' \n", measurement.Name)
-			fmt.Printf("\t\tTags: ")
-			for _, tag := range measurement.Tags {
-				fmt.Printf("\n\t\t\t%s: %s", tag.Key, tag.Value)
-			}
+		if config.SendStats() {
+			log.Println("DEF SENDING STATS")
+			log.Println(config.AccessEmail())
+			log.Println(config.AccessToken())
+		} else {
+			log.Println("NOT SENDING STATS")
+			printMeasurements(mc)
 		}
 	})
 }
@@ -57,16 +59,12 @@ func processRequestData(reqBytes []byte) (promremote.WriteRequest, error) {
 	return req, nil
 }
 
-func printData(data *promremote.WriteRequest) {
-	for _, ts := range data.Timeseries {
-		m := make(model.Metric, len(ts.Labels))
-		for _, l := range ts.Labels {
-			m[model.LabelName(l.Name)] = model.LabelValue(l.Value)
-		}
-		log.Println(m)
-
-		for _, s := range ts.Samples {
-			log.Printf("  %f %d\n", s.Value, s.TimestampMs)
+func printMeasurements(data []*librato.Measurement) {
+	for _, measurement := range data {
+		fmt.Printf("\nMetric name: '%s' \n", measurement.Name)
+		fmt.Printf("\t\tTags: ")
+		for _, tag := range measurement.Tags {
+			fmt.Printf("\n\t\t\t%s: %s", tag.Key, tag.Value)
 		}
 	}
 }
