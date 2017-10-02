@@ -1,5 +1,8 @@
 package config
 
+// This package provides very simple configuration semantics and is designed to be a dependency
+// for the rest of the app and any of its component packages.
+
 import "flag"
 
 // globalConf is the Config singleton
@@ -51,6 +54,11 @@ func AccessToken() string {
 // BindPort returns the port number that the service is bound to
 func BindPort() int {
 	return globalConf.bindPort
+}
+
+// PushErrorLimit is a hardcoded limit on how many errors will be tolerated before the service stops attempting push
+func PushErrorLimit() int {
+	return 5
 }
 
 // SendStats returns true if the application should persist stats over the network to Librato, false otherwise

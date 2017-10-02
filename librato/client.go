@@ -6,17 +6,18 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-
-	promremote "github.com/prometheus/prometheus/storage/remote"
 )
 
-// ServiceAccessor defines an interface for talking to Librato
+// ServiceAccessor defines an interface for talking to Librato via domain-specific service constructs
 type ServiceAccessor interface {
-	SendPrometheusMetrics([]*promremote.TimeSeries) (*http.Response, error)
+	// MeasurementsService implements an interface for dealing with Librato Measurements
+	MeasurementsService() MeasurementsCommunicator
+	// SpacesService implements an interface for dealing with Librato Spaces
+	SpacesService() SpacesCommunicator
 }
 
 const (
-	defaultBaseURL   = "https://metrics-api.librato.com/v1"
+	defaultBaseURL   = "https://metrics-api.librato.com/v1/"
 	defaultMediaType = "application/json"
 )
 
@@ -31,7 +32,9 @@ type Client struct {
 	// token is the private part of the API credential pair
 	token string
 	// measurementsService embeds the client and implements access to the Measurements API
-	MeasurementsService MeasurementsCommunicator
+	measurementsService MeasurementsCommunicator
+	// spacesService embeds the client and implements access to the Spaces API
+	spacesService SpacesCommunicator
 }
 
 func NewClient(email, token string) *Client {
@@ -42,7 +45,9 @@ func NewClient(email, token string) *Client {
 		token:   token,
 		baseURL: baseURL,
 	}
-	c.MeasurementsService = &MeasurementsService{c}
+	c.measurementsService = &MeasurementsService{c}
+	c.spacesService = &SpacesService{c}
+
 	return c
 }
 
@@ -76,6 +81,16 @@ func (c *Client) NewRequest(method, path string, body interface{}) (*http.Reques
 	req.Header.Set("Content-Type", defaultMediaType)
 
 	return req, nil
+}
+
+// MeasurementsService represents the subset of the API that deals with Librato Measurements
+func (c *Client) MeasurementsService() MeasurementsCommunicator {
+	return c.measurementsService
+}
+
+// SpacesService represents the subset of the API that deals with Librato Measurements
+func (c *Client) SpacesService() SpacesCommunicator {
+	return c.spacesService
 }
 
 // TODO: use this as a way to standardize error responses
