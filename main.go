@@ -16,6 +16,7 @@ func main() {
 
 	http.Handle("/receive", receiveHandler(lc))
 	http.Handle("/spaces", listSpacesHandler(lc))
+	http.Handle("/test", testMetricHandler(lc))
 
 	http.ListenAndServe(portString, nil)
 }

@@ -1,6 +1,10 @@
 package promadapter
 
 import (
+	"math"
+
+	time2 "time"
+
 	"github.com/prometheus/common/model"
 	promremote "github.com/prometheus/prometheus/storage/remote"
 	"github.com/solarwinds/p2l/librato"
@@ -40,10 +44,15 @@ func writeRequestToSamples(req *promremote.WriteRequest) model.Samples {
 func samplesToMeasurementSubmission(samples model.Samples) []*librato.Measurement {
 	var measurements []*librato.Measurement
 	for _, s := range samples {
+		value := float64(s.Value) // use pointers to avoid NaN explosions in JSON encoding
+		if value == math.NaN() {
+			continue
+		}
+		time := int64(s.Timestamp) / int64(time2.Microsecond)
 		m := &librato.Measurement{
 			Name:  string(s.Metric[model.MetricNameLabel]),
-			Value: float64(s.Value),
-			Time:  int64(s.Timestamp),
+			Value: &value,
+			Time:  &time,
 			Tags:  labelsToTags(s),
 		}
 		measurements = append(measurements, m)
@@ -52,15 +61,13 @@ func samplesToMeasurementSubmission(samples model.Samples) []*librato.Measuremen
 }
 
 // labelsToTags converts the Metric's associated Labels to Librato Tags
-func labelsToTags(sample *model.Sample) []*librato.MeasurementTag {
-	var mt []*librato.MeasurementTag
+func labelsToTags(sample *model.Sample) librato.MeasurementTags {
+	var mt = make(librato.MeasurementTags)
 	for k, v := range sample.Metric {
 		if k == model.MetricNameLabel {
 			continue
 		}
-
-		tag := &librato.MeasurementTag{Key: string(k), Value: string(v)}
-		mt = append(mt, tag)
+		mt[string(k)] = string(v)
 	}
 	return mt
 }

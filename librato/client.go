@@ -3,7 +3,9 @@ package librato
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 )
@@ -91,6 +93,8 @@ func (c *Client) NewRequest(method, path string, body interface{}) (*http.Reques
 	req.Header.Set("Accept", defaultMediaType)
 	req.Header.Set("Content-Type", defaultMediaType)
 
+	dumpBody(body)
+
 	return req, nil
 }
 
@@ -139,11 +143,20 @@ func (c *Client) Do(req *http.Request, respData interface{}) (*http.Response, er
 
 // checkError creates an ErrorResponse from the http.Response.Body
 func checkError(resp *http.Response) error {
-	var errResponse *ErrorResponse
+	var errResponse ErrorResponse
 	if resp.StatusCode >= 299 {
 		dec := json.NewDecoder(resp.Body)
-		dec.Decode(errResponse)
-		return errResponse
+		dec.Decode(&errResponse)
+		fmt.Printf("Error: %+v", errResponse)
+		return &errResponse
 	}
 	return nil
+}
+
+func dumpBody(body interface{}) {
+	jsonData, err := json.MarshalIndent(body, "", "  ")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	log.Println(string(jsonData))
 }

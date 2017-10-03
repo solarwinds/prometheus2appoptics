@@ -2,17 +2,12 @@ package main
 
 import (
 	"testing"
-	"time"
 
 	"net/http/httptest"
 
 	"net/http"
 
 	"bytes"
-
-	"github.com/golang/protobuf/proto"
-	"github.com/golang/snappy"
-	promremote "github.com/prometheus/prometheus/storage/remote"
 )
 
 func TestReceiveHandler(t *testing.T) {
@@ -20,7 +15,7 @@ func TestReceiveHandler(t *testing.T) {
 	defer server.Close()
 
 	t.Run("data is well-formed", func(t *testing.T) {
-		payload := fixtureSamplePayload()
+		payload := FixtureSamplePayload()
 		resp, err := postToReceive(server, payload)
 
 		if err != nil {
@@ -44,20 +39,4 @@ func postToReceive(server *httptest.Server, payload []byte) (*http.Response, err
 	req.Header.Set("X-Prometheus-Remote-Write-Version", "0.1.0")
 
 	return client.Do(req)
-}
-
-// fixtureSamplePayload returns a Snappy-compressed TimeSeries
-func fixtureSamplePayload() []byte {
-	stubLabelPair := &promremote.LabelPair{Name: "environment", Value: "production"}
-	stubSample := &promremote.Sample{Value: 123.45, TimestampMs: time.Now().UTC().Unix()}
-	stubTimeSeries := promremote.TimeSeries{
-		Labels:  []*promremote.LabelPair{stubLabelPair},
-		Samples: []*promremote.Sample{stubSample},
-	}
-
-	writeRequest := promremote.WriteRequest{Timeseries: []*promremote.TimeSeries{&stubTimeSeries}}
-
-	protoBytes, _ := proto.Marshal(&writeRequest)
-	compressedBytes := snappy.Encode(nil, protoBytes)
-	return compressedBytes
 }
