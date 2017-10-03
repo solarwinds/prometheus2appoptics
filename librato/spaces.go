@@ -1,8 +1,6 @@
 package librato
 
-import (
-	"encoding/json"
-)
+import "net/http"
 
 // SpacesResponse represents the returned data payload from Spaces API's List command (/spaces)
 type SpacesResponse struct {
@@ -19,7 +17,7 @@ type Space struct {
 }
 
 type SpacesCommunicator interface {
-	List() ([]*Space, error)
+	List() ([]*Space, *http.Response, error)
 }
 
 type SpacesService struct {
@@ -27,25 +25,21 @@ type SpacesService struct {
 }
 
 // List implements the Librato Spaces API's List command
-func (s *SpacesService) List() ([]*Space, error) {
+func (s *SpacesService) List() ([]*Space, *http.Response, error) {
 	var spaces []*Space
 	req, err := s.client.NewRequest("GET", "spaces", nil)
 
 	if err != nil {
-		return spaces, err
-	}
-
-	resp, err := s.client.Do(req)
-
-	if err != nil {
-		return spaces, err
+		return spaces, nil, err
 	}
 
 	var spacesResponse SpacesResponse
-	dec := json.NewDecoder(resp.Body)
-	if err := dec.Decode(&spacesResponse); err != nil {
-		return spaces, err
+	resp, err := s.client.Do(req, &spacesResponse)
+
+	if err != nil {
+		return spaces, resp, err
 	}
+
 	spaces = spacesResponse.Spaces
-	return spaces, nil
+	return spaces, resp, nil
 }

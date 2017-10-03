@@ -42,15 +42,15 @@ func receiveHandler(lc librato.ServiceAccessor) http.Handler {
 			// Either persist to Librato or print to stdout depending on how the app was started
 			if config.SendStats() {
 				resp, err := lc.MeasurementsService().Create(mc)
-				if err != nil || resp.StatusCode > 399 {
+				if err != nil {
 					log.Println(err)
 					globalPushErrorCounter++
+					w.WriteHeader(resp.StatusCode)
+					w.Write([]byte(err.Error()))
 					return
 				}
-				// TODO: get the real one and just look for it
-				if resp.StatusCode >= 200 && resp.StatusCode < 300 {
-					log.Printf("Sent %d metrics to Librato\n", len(mc))
-				}
+
+				log.Printf("Sent %d metrics to Librato\n", len(mc))
 			} else {
 				printMeasurements(mc)
 			}
@@ -63,13 +63,17 @@ func receiveHandler(lc librato.ServiceAccessor) http.Handler {
 // listSpacesHandler returns the Librato Spaces on the associated account and can be used as a test for credentials
 func listSpacesHandler(lc librato.ServiceAccessor) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		spaces, err := lc.SpacesService().List()
-
-		fmt.Println("IN THE HANDLER")
+		spaces, resp, err := lc.SpacesService().List()
 
 		if err != nil {
+			if resp == nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
 			log.Println(err)
-			w.WriteHeader(http.StatusInternalServerError)
+			w.WriteHeader(resp.StatusCode)
+			w.Write([]byte(err.Error()))
 			return
 		}
 

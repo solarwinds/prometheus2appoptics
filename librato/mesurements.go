@@ -41,5 +41,5 @@ type MeasurementsService struct {
 // Create persists the given MeasurementCollection to Librato
 func (ms *MeasurementsService) Create(mc []*Measurement) (*http.Response, error) {
 	req, _ := ms.client.NewRequest("POST", "metrics", mc)
-	return ms.client.Do(req)
+	return ms.client.Do(req, nil)
 }

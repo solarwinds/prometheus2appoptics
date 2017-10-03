@@ -37,6 +37,17 @@ type Client struct {
 	spacesService SpacesCommunicator
 }
 
+// ErrorResponse represents the response body returned when the API reports an error
+type ErrorResponse struct {
+	// Errors holds the error information from the API
+	Errors map[string]ErrorMessage `json:"errors"`
+}
+
+// ErrorMessage is the informational part of the error response body
+type ErrorMessage struct {
+	Request []string `json:"request"`
+}
+
 func NewClient(email, token string) *Client {
 	baseURL, _ := url.Parse(defaultBaseURL)
 	c := &Client{
@@ -93,8 +104,46 @@ func (c *Client) SpacesService() SpacesCommunicator {
 	return c.spacesService
 }
 
-// TODO: use this as a way to standardize error responses
-// Do performs the HTTP request on the wire
-func (c *Client) Do(req *http.Request) (*http.Response, error) {
-	return c.client.Do(req)
+// Error makes ErrorResponse satisfy the error interface and can be used to serialize error responses back to the client
+func (e *ErrorResponse) Error() string {
+	errorData, _ := json.Marshal(e)
+	return string(errorData)
+}
+
+// Do performs the HTTP request on the wire, taking an optional second parameter for containing a response
+func (c *Client) Do(req *http.Request, respData interface{}) (*http.Response, error) {
+	resp, err := c.client.Do(req)
+
+	// error in performing request
+	if err != nil {
+		return resp, err
+	}
+
+	// request response contains an error
+	if err = checkError(resp); err != nil {
+		return resp, err
+	}
+
+	defer resp.Body.Close()
+	if respData != nil {
+		if writer, ok := respData.(io.Writer); ok {
+			_, err := io.Copy(writer, resp.Body)
+			return resp, err
+		} else {
+			err = json.NewDecoder(resp.Body).Decode(respData)
+		}
+	}
+
+	return resp, err
+}
+
+// checkError creates an ErrorResponse from the http.Response.Body
+func checkError(resp *http.Response) error {
+	var errResponse *ErrorResponse
+	if resp.StatusCode >= 299 {
+		dec := json.NewDecoder(resp.Body)
+		dec.Decode(errResponse)
+		return errResponse
+	}
+	return nil
 }
