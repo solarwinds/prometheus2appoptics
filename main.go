@@ -1,27 +1,63 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"net/http"
+	"os/signal"
+	"time"
+
+	"os"
+
+	"github.com/solarwinds/p2l/config"
+	"github.com/solarwinds/p2l/librato"
+	"github.com/solarwinds/p2l/promadapter"
 )
 
-// Flag vars
-var bindPort int
-var accessEmail string
-var accessToken string
+// startTime helps us collect information on how long this process runs
+var startTime = time.Now().UTC()
 
-func init() {
-	flag.IntVar(&bindPort, "bind-port", 4567, "the port the HTTP server binds to")
-	flag.StringVar(&accessEmail, "access-email", "", "the email account used for auth")
-	flag.StringVar(&accessToken, "access-token", "", "the API token used for auth")
+// osSignalChan is used to handle SIGINT
+var osSignalChan = make(chan os.Signal, 1)
 
-	flag.Parse()
-}
+// stopChan is used for controlling the batching/sending flow & graceful shutdown
+var stopChan = make(chan bool)
 
 func main() {
-	portString := fmt.Sprintf(":%d", bindPort)
+	signal.Notify(osSignalChan, os.Interrupt)
+	go handleShutdown()
+
+	portString := fmt.Sprintf(":%d", config.BindPort())
 	fmt.Println("[-] Starting on ", portString)
-	http.Handle("/receive", receiveHandler())
+
+	lc := librato.NewClient(config.AccessEmail(), config.AccessToken())
+
+	// prepChan holds groups of Measurements to be batched
+	prepChan := make(chan []*librato.Measurement)
+
+	// pushChan holds groups of Measurements conforming to the size constraint described
+	// by librato.MeasurementPostMaxBatchSize
+	pushChan := make(chan []*librato.Measurement)
+
+	// errorChan is used to track persistence errors and shutdown when too many are seen
+	errorChan := make(chan error)
+
+	go promadapter.BatchMeasurements(prepChan, pushChan, stopChan)
+	go promadapter.PersistBatches(lc, pushChan, stopChan, errorChan)
+	go promadapter.ManagePersistenceErrors(errorChan, stopChan)
+
+	http.Handle("/receive", receiveHandler(prepChan))
+	http.Handle("/spaces", listSpacesHandler(lc))
+	http.Handle("/test", testMetricHandler(lc))
+
 	http.ListenAndServe(portString, nil)
+}
+
+// handleShutdown defines the behavior of the application when it receives SIGINT
+func handleShutdown() {
+	<-osSignalChan
+	runDuration := time.Since(startTime) / time.Second
+	fmt.Println("\n[-] Sending stop signal and shutting down")
+	fmt.Printf("[-] Process ran for %d seconds\n", runDuration)
+	stopChan <- true
+	os.Exit(0)
 }

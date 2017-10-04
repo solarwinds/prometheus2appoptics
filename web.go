@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 
 	"fmt"
 
@@ -11,11 +12,12 @@ import (
 	"github.com/golang/snappy"
 	"github.com/prometheus/common/model"
 	promremote "github.com/prometheus/prometheus/storage/remote"
+	"github.com/solarwinds/p2l/librato"
 	"github.com/solarwinds/p2l/promadapter"
 )
 
 // receiveHandler implements the code path for handling incoming Prometheus metrics
-func receiveHandler() http.Handler {
+func receiveHandler(prepChan chan<- []*librato.Measurement) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		compressed, err := ioutil.ReadAll(r.Body)
 		if err != nil {
@@ -31,14 +33,49 @@ func receiveHandler() http.Handler {
 			return
 		}
 
-		mc := promadapter.PromDataToLibratoMeasurements(&data)
+		prepChan <- promadapter.PromDataToLibratoMeasurements(&data)
+		w.WriteHeader(http.StatusAccepted)
+	})
+}
 
-		for _, measurement := range mc {
-			fmt.Printf("\nMetric name: '%s' \n", measurement.Name)
-			fmt.Printf("\t\tTags: ")
-			for _, tag := range measurement.Tags {
-				fmt.Printf("\n\t\t\t%s: %s", tag.Key, tag.Value)
+// listSpacesHandler returns the Librato Spaces on the associated account and can be used as a test for credentials
+func listSpacesHandler(lc librato.ServiceAccessor) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		spaces, resp, err := lc.SpacesService().List()
+
+		if err != nil {
+			if resp == nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				return
 			}
+
+			log.Println(err)
+			w.WriteHeader(resp.StatusCode)
+			w.Write([]byte(err.Error()))
+			return
+		}
+
+		for _, space := range spaces {
+			fmt.Printf("%+v\n", space)
+		}
+	})
+}
+
+// testMetricHandler sends a single fixture test Metric to Librato and is used in debugging
+func testMetricHandler(lc librato.ServiceAccessor) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		data, err := processRequestData(FixtureSamplePayload())
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		mc := promadapter.PromDataToLibratoMeasurements(&data)
+		resp, err := lc.MeasurementsService().Create(mc)
+		w.WriteHeader(resp.StatusCode)
+
+		if err != nil {
+			w.Write([]byte(err.Error()))
 		}
 	})
 }
@@ -57,16 +94,19 @@ func processRequestData(reqBytes []byte) (promremote.WriteRequest, error) {
 	return req, nil
 }
 
-func printData(data *promremote.WriteRequest) {
-	for _, ts := range data.Timeseries {
-		m := make(model.Metric, len(ts.Labels))
-		for _, l := range ts.Labels {
-			m[model.LabelName(l.Name)] = model.LabelValue(l.Value)
-		}
-		log.Println(m)
-
-		for _, s := range ts.Samples {
-			log.Printf("  %f %d\n", s.Value, s.TimestampMs)
-		}
+// FixtureSamplePayload returns a Snappy-compressed TimeSeries
+func FixtureSamplePayload() []byte {
+	nameLabelPair := &promremote.LabelPair{Name: model.MetricNameLabel, Value: "mah-test-metric"}
+	stubLabelPair := &promremote.LabelPair{Name: "environment", Value: "production"}
+	stubSample := &promremote.Sample{Value: 123.45, TimestampMs: time.Now().UTC().Unix()}
+	stubTimeSeries := promremote.TimeSeries{
+		Labels:  []*promremote.LabelPair{stubLabelPair, nameLabelPair},
+		Samples: []*promremote.Sample{stubSample},
 	}
+
+	writeRequest := promremote.WriteRequest{Timeseries: []*promremote.TimeSeries{&stubTimeSeries}}
+
+	protoBytes, _ := proto.Marshal(&writeRequest)
+	compressedBytes := snappy.Encode(nil, protoBytes)
+	return compressedBytes
 }
