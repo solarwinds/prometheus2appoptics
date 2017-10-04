@@ -19,8 +19,10 @@ type ServiceAccessor interface {
 }
 
 const (
-	defaultBaseURL   = "https://metrics-api.librato.com/v1/"
-	defaultMediaType = "application/json"
+	// MeasurementPostMaxBatchSize defines the max number of Measurements to send to the API at once
+	MeasurementPostMaxBatchSize = 1000
+	defaultBaseURL              = "https://metrics-api.librato.com/v1/"
+	defaultMediaType            = "application/json"
 )
 
 // Client implements ServiceAccessor
@@ -42,13 +44,13 @@ type Client struct {
 // ErrorResponse represents the response body returned when the API reports an error
 type ErrorResponse struct {
 	// Errors holds the error information from the API
-	Errors map[string]ErrorMessage `json:"errors"`
+	Errors interface{} `json:"errors"`
 }
 
-// ErrorMessage is the informational part of the error response body
-type ErrorMessage struct {
-	Request []string `json:"request"`
-}
+// RequestErrorMessage represents the error schema for request errors
+type RequestErrorMessage map[string][]string
+
+type ParamErrorMessage []map[string]string
 
 func NewClient(email, token string) *Client {
 	baseURL, _ := url.Parse(defaultBaseURL)

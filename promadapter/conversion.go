@@ -12,7 +12,7 @@ import (
 
 //
 // The adapter package holds information necessary to convert from Prometheus types to types defined in the Librato
-// client library.
+// client library, as well as for creating API-compliant batches and using the Librato client to send them.
 //
 
 func PromDataToLibratoMeasurements(req *promremote.WriteRequest) []*librato.Measurement {
@@ -71,3 +71,5 @@ func labelsToTags(sample *model.Sample) librato.MeasurementTags {
 	}
 	return mt
 }
+
+
