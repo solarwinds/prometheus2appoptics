@@ -3,7 +3,7 @@ package promadapter
 import (
 	"math"
 
-	time2 "time"
+	"time"
 
 	"github.com/prometheus/common/model"
 	promremote "github.com/prometheus/prometheus/storage/remote"
@@ -44,15 +44,16 @@ func writeRequestToSamples(req *promremote.WriteRequest) model.Samples {
 func samplesToMeasurementSubmission(samples model.Samples) []*librato.Measurement {
 	var measurements []*librato.Measurement
 	for _, s := range samples {
-		value := float64(s.Value) // use pointers to avoid NaN explosions in JSON encoding
-		if value == math.NaN() {
+		if math.IsNaN(float64(s.Value)) {
 			continue
 		}
-		time := int64(s.Timestamp) / int64(time2.Microsecond)
+
+		msTime := time.Duration(s.Timestamp) / time.Microsecond
+
 		m := &librato.Measurement{
 			Name:  string(s.Metric[model.MetricNameLabel]),
-			Value: &value,
-			Time:  &time,
+			Value: float64(s.Value),
+			Time:  int64(msTime),
 			Tags:  labelsToTags(s),
 		}
 		measurements = append(measurements, m)
@@ -71,5 +72,3 @@ func labelsToTags(sample *model.Sample) librato.MeasurementTags {
 	}
 	return mt
 }
-
-

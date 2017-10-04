@@ -3,7 +3,10 @@ package promadapter
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"time"
+
+	"bytes"
 
 	"github.com/solarwinds/p2l/config"
 	"github.com/solarwinds/p2l/librato"
@@ -66,8 +69,12 @@ func ManagePersistenceErrors(errorChan <-chan error, stopChan chan<- bool) {
 // persistBatch sends to the remote Librato endpoint unless config.SendStats() returns false, when it prints to stdout
 func persistBatch(lc librato.ServiceAccessor, batch []*librato.Measurement) error {
 	if config.SendStats() {
-		_, err := lc.MeasurementsService().Create(batch)
 		log.Printf("persisting %d Measurements to Librato\n", len(batch))
+		resp, err := lc.MeasurementsService().Create(batch)
+		if resp == nil {
+			fmt.Println("response is nil")
+		}
+		dumpResponse(resp)
 		return err
 	} else {
 		printMeasurements(batch)
@@ -79,9 +86,19 @@ func persistBatch(lc librato.ServiceAccessor, batch []*librato.Measurement) erro
 func printMeasurements(data []*librato.Measurement) {
 	for _, measurement := range data {
 		fmt.Printf("\nMetric name: '%s' \n", measurement.Name)
+		fmt.Printf("\t value: %d \n", measurement.Value)
 		fmt.Printf("\t\tTags: ")
 		for k, v := range measurement.Tags {
 			fmt.Printf("\n\t\t\t%s: %s", k, v)
 		}
+	}
+}
+
+func dumpResponse(resp *http.Response) {
+	buf := new(bytes.Buffer)
+	fmt.Printf("response status: %s\n", resp.Status)
+	if resp.Body != nil {
+		buf.ReadFrom(resp.Body)
+		fmt.Printf("response body: %s\n\n", string(buf.Bytes()))
 	}
 }

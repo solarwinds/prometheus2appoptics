@@ -56,7 +56,7 @@ func main() {
 func handleShutdown() {
 	<-osSignalChan
 	runDuration := time.Since(startTime) / time.Second
-	fmt.Println("[-] Sending stop signal and shutting down")
+	fmt.Println("\n[-] Sending stop signal and shutting down")
 	fmt.Printf("[-] Process ran for %d seconds\n", runDuration)
 	stopChan <- true
 	os.Exit(0)

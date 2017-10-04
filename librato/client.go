@@ -81,6 +81,7 @@ func (c *Client) NewRequest(method, path string, body interface{}) (*http.Reques
 		buffer = &bytes.Buffer{}
 		encodeErr := json.NewEncoder(buffer).Encode(body)
 		if encodeErr != nil {
+			dumpMeasurements(body)
 			return nil, encodeErr
 		}
 
@@ -94,8 +95,6 @@ func (c *Client) NewRequest(method, path string, body interface{}) (*http.Reques
 	req.SetBasicAuth(c.email, c.token)
 	req.Header.Set("Accept", defaultMediaType)
 	req.Header.Set("Content-Type", defaultMediaType)
-
-	dumpBody(body)
 
 	return req, nil
 }

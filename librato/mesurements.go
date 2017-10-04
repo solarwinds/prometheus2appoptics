@@ -1,6 +1,8 @@
 package librato
 
 import (
+	"fmt"
+	"math"
 	"net/http"
 )
 
@@ -18,9 +20,9 @@ type Measurement struct {
 	// Tags add dimensionality to data, similar to Labels in Prometheus
 	Tags MeasurementTags `json:"tags,omitempty"`
 	// Time is the UNIX epoch timestamp of the Measurement
-	Time *int64 `json:"time"`
+	Time int64 `json:"time"`
 	// Value is the value of the
-	Value *float64 `json:"value"`
+	Value float64 `json:"value"`
 }
 
 // MeasurementPayload is the construct we POST to the API
@@ -44,7 +46,18 @@ func (ms *MeasurementsService) Create(mc []*Measurement) (*http.Response, error)
 	req, err := ms.client.NewRequest("POST", "measurements", payload)
 
 	if err != nil {
+		fmt.Println("error creating request:", err)
 		return nil, err
 	}
 	return ms.client.Do(req, nil)
+}
+
+func dumpMeasurements(measurements interface{}) {
+	ms := measurements.(MeasurementPayload)
+	for i, measurement := range ms.Measurements {
+		if math.IsNaN(measurement.Value) {
+			fmt.Println("Found at index ", i)
+			fmt.Printf("found in '%s'", measurement.Name)
+		}
+	}
 }
