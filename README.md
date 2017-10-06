@@ -1,4 +1,7 @@
 # Librato & AppOptics as Prometheus remote storage provider
+
+[![CircleCI](https://circleci.com/gh/solarwinds/p2l.svg?style=svg&circle-token=de9c33d8cfa8724aadc105c798d57dca9060dc81)](https://circleci.com/gh/solarwinds/p2l)
+
 An implementation of a Prometheus [remote storage adapter](/prometheus/prometheus/tree/master/documentation/examples/remote_storage/remote_storage_adapter) for Librato and AppOptics.
 
 `p2l` is a web application that handles incoming payloads of Prometheus Sample data and then converts it into Librato Measurement semantics and pushes that up to Librato's REST API in rate-limit-compliant batches.

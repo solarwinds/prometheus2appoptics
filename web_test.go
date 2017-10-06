@@ -8,10 +8,18 @@ import (
 	"net/http"
 
 	"bytes"
+
+	"github.com/solarwinds/p2l/librato"
 )
 
 func TestReceiveHandler(t *testing.T) {
-	server := httptest.NewServer(receiveHandler())
+	// simple hack to ensure we don't block forever
+	prepChan := make(chan []*librato.Measurement)
+	go func(prepChan <-chan []*librato.Measurement) {
+		_ = <-prepChan
+	}(prepChan)
+
+	server := httptest.NewServer(receiveHandler(prepChan))
 	defer server.Close()
 
 	t.Run("data is well-formed", func(t *testing.T) {
@@ -22,8 +30,8 @@ func TestReceiveHandler(t *testing.T) {
 			t.Errorf("Expected no error but received %s", err.Error())
 		}
 
-		if resp.StatusCode != http.StatusOK {
-			t.Errorf("Expected status 200 but received %d", resp.StatusCode)
+		if resp.StatusCode != http.StatusAccepted {
+			t.Errorf("Expected status 202 but received %d", resp.StatusCode)
 		}
 	})
 }
