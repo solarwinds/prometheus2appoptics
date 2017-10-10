@@ -16,7 +16,7 @@ import (
 //
 
 func PromDataToLibratoMeasurements(req *promremote.WriteRequest) []*librato.Measurement {
-	return samplesToMeasurementSubmission(writeRequestToSamples(req))
+	return samplesToMeasurements(writeRequestToSamples(req))
 }
 
 // writeRequestToSamples converts a Prometheus remote storage WriteRequest to a collection of Prometheus common model Samples
@@ -40,8 +40,8 @@ func writeRequestToSamples(req *promremote.WriteRequest) model.Samples {
 	return samples
 }
 
-// samplesToMeasurementSubmission converts Prometheus common model Samples to a collection of Librato Measurements
-func samplesToMeasurementSubmission(samples model.Samples) []*librato.Measurement {
+// samplesToMeasurements converts Prometheus common model Samples to a collection of Librato Measurements
+func samplesToMeasurements(samples model.Samples) []*librato.Measurement {
 	var measurements []*librato.Measurement
 	for _, s := range samples {
 		if math.IsNaN(float64(s.Value)) {
