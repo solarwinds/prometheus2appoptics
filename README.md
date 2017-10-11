@@ -19,7 +19,7 @@ Two methods of deployment supported:
 2. (Recommended) Deployment via Docker container
 
 ### Deploying as a Container
-`docker run -p 4567 solarwinds/prom2swi-cloud`
+`docker run -p 4567 solarwinds/p2l`
 
 ### Configuring Prometheus
 
