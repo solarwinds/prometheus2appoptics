@@ -72,6 +72,14 @@ func testMetricHandler(lc librato.ServiceAccessor) http.Handler {
 		}
 		mc := promadapter.PromDataToLibratoMeasurements(&data)
 		resp, err := lc.MeasurementsService().Create(mc)
+
+		if resp == nil {
+			log.Println("*http.Response was nil")
+			log.Println(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
 		w.WriteHeader(resp.StatusCode)
 
 		if err != nil {

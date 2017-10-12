@@ -73,13 +73,13 @@ func persistBatch(lc librato.ServiceAccessor, batch []*librato.Measurement) erro
 		resp, err := lc.MeasurementsService().Create(batch)
 		if resp == nil {
 			fmt.Println("response is nil")
+			return err
 		}
 		dumpResponse(resp)
-		return err
 	} else {
 		printMeasurements(batch)
-		return nil
 	}
+	return nil
 }
 
 // printMeasurements pretty-prints the supplied measurements to stdout
