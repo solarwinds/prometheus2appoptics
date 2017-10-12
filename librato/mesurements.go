@@ -2,6 +2,7 @@ package librato
 
 import (
 	"fmt"
+	"log"
 	"math"
 	"net/http"
 )
@@ -46,7 +47,7 @@ func (ms *MeasurementsService) Create(mc []*Measurement) (*http.Response, error)
 	req, err := ms.client.NewRequest("POST", "measurements", payload)
 
 	if err != nil {
-		fmt.Println("error creating request:", err)
+		log.Println("error creating request:", err)
 		return nil, err
 	}
 	return ms.client.Do(req, nil)

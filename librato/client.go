@@ -3,7 +3,6 @@ package librato
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -148,7 +147,7 @@ func checkError(resp *http.Response) error {
 	if resp.StatusCode >= 299 {
 		dec := json.NewDecoder(resp.Body)
 		dec.Decode(&errResponse)
-		fmt.Printf("Error: %+v", errResponse)
+		log.Printf("Error: %+v\n", errResponse)
 		return &errResponse
 	}
 	return nil

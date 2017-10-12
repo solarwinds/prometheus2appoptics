@@ -13,6 +13,9 @@ clean:
 run:
 	make build && ./p2l
 
+docker:
+	GOOS=linux GOARCH=amd64 go build && docker build -t solarwinds/p2l . && make clean && make build
+
 test:
 	go test -v $(excluding_vendor)
 
