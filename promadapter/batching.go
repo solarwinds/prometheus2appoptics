@@ -9,21 +9,21 @@ import (
 	"bytes"
 
 	"github.com/solarwinds/p2l/config"
-	"github.com/solarwinds/p2l/librato"
+	"github.com/solarwinds/p2l/appoptics"
 )
 
 // BatchMeasurements reads slices of librato.Measurement types off a channel populated by the web handler
 // and packages them into batches conforming to the limitations imposed by the API.
-func BatchMeasurements(prepChan <-chan []*librato.Measurement, pushChan chan<- []*librato.Measurement, stopChan <-chan bool) {
-	var currentBatch []*librato.Measurement
+func BatchMeasurements(prepChan <-chan []*appoptics.Measurement, pushChan chan<- []*appoptics.Measurement, stopChan <-chan bool) {
+	var currentBatch []*appoptics.Measurement
 	for {
 		select {
 		case mslice := <-prepChan:
 			currentBatch = append(currentBatch, mslice...)
-			if len(currentBatch) >= librato.MeasurementPostMaxBatchSize {
-				pushBatch := currentBatch[:librato.MeasurementPostMaxBatchSize]
+			if len(currentBatch) >= appoptics.MeasurementPostMaxBatchSize {
+				pushBatch := currentBatch[:appoptics.MeasurementPostMaxBatchSize]
 				pushChan <- pushBatch
-				currentBatch = currentBatch[librato.MeasurementPostMaxBatchSize:]
+				currentBatch = currentBatch[appoptics.MeasurementPostMaxBatchSize:]
 			}
 		case <-stopChan:
 			break
@@ -33,7 +33,7 @@ func BatchMeasurements(prepChan <-chan []*librato.Measurement, pushChan chan<- [
 
 // PersistBatches reads maximal slices of librato.Measurement types off a channel and persists them to the remote Librato
 // API. Errors are placed on the error channel.
-func PersistBatches(lc librato.ServiceAccessor, pushChan <-chan []*librato.Measurement, stopChan <-chan bool, errorChan chan<- error) {
+func PersistBatches(lc appoptics.ServiceAccessor, pushChan <-chan []*appoptics.Measurement, stopChan <-chan bool, errorChan chan<- error) {
 	ticker := time.NewTicker(time.Millisecond * 500)
 	for {
 		select {
@@ -67,7 +67,7 @@ func ManagePersistenceErrors(errorChan <-chan error, stopChan chan<- bool) {
 }
 
 // persistBatch sends to the remote Librato endpoint unless config.SendStats() returns false, when it prints to stdout
-func persistBatch(lc librato.ServiceAccessor, batch []*librato.Measurement) error {
+func persistBatch(lc appoptics.ServiceAccessor, batch []*appoptics.Measurement) error {
 	if config.SendStats() {
 		log.Printf("persisting %d Measurements to Librato\n", len(batch))
 		resp, err := lc.MeasurementsService().Create(batch)
@@ -83,7 +83,7 @@ func persistBatch(lc librato.ServiceAccessor, batch []*librato.Measurement) erro
 }
 
 // printMeasurements pretty-prints the supplied measurements to stdout
-func printMeasurements(data []*librato.Measurement) {
+func printMeasurements(data []*appoptics.Measurement) {
 	for _, measurement := range data {
 		fmt.Printf("\nMetric name: '%s' \n", measurement.Name)
 		fmt.Printf("\t value: %d \n", measurement.Value)

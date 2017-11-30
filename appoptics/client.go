@@ -1,4 +1,4 @@
-package librato
+package appoptics
 
 import (
 	"bytes"
@@ -20,7 +20,7 @@ type ServiceAccessor interface {
 const (
 	// MeasurementPostMaxBatchSize defines the max number of Measurements to send to the API at once
 	MeasurementPostMaxBatchSize = 1000
-	defaultBaseURL              = "https://metrics-api.librato.com/v1/"
+	defaultBaseURL              = "https://api.appoptics.com/v1/"
 	defaultMediaType            = "application/json"
 )
 

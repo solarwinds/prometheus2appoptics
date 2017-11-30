@@ -12,12 +12,12 @@ import (
 	"github.com/golang/snappy"
 	"github.com/prometheus/common/model"
 	promremote "github.com/prometheus/prometheus/storage/remote"
-	"github.com/solarwinds/p2l/librato"
+	"github.com/solarwinds/p2l/appoptics"
 	"github.com/solarwinds/p2l/promadapter"
 )
 
 // receiveHandler implements the code path for handling incoming Prometheus metrics
-func receiveHandler(prepChan chan<- []*librato.Measurement) http.Handler {
+func receiveHandler(prepChan chan<- []*appoptics.Measurement) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		compressed, err := ioutil.ReadAll(r.Body)
 		if err != nil {
@@ -39,7 +39,7 @@ func receiveHandler(prepChan chan<- []*librato.Measurement) http.Handler {
 }
 
 // listSpacesHandler returns the Librato Spaces on the associated account and can be used as a test for credentials
-func listSpacesHandler(lc librato.ServiceAccessor) http.Handler {
+func listSpacesHandler(lc appoptics.ServiceAccessor) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		spaces, resp, err := lc.SpacesService().List()
 
@@ -62,7 +62,7 @@ func listSpacesHandler(lc librato.ServiceAccessor) http.Handler {
 }
 
 // testMetricHandler sends a single fixture test Metric to Librato and is used in debugging
-func testMetricHandler(lc librato.ServiceAccessor) http.Handler {
+func testMetricHandler(lc appoptics.ServiceAccessor) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		data, err := processRequestData(FixtureSamplePayload())
 		if err != nil {

@@ -1,4 +1,4 @@
-package librato
+package appoptics
 
 import (
 	"fmt"
