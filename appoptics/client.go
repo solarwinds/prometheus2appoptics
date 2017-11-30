@@ -30,8 +30,6 @@ type Client struct {
 	baseURL *url.URL
 	// client is the http.Client singleton used for wire interaction
 	client *http.Client
-	// email is the public part of the API credential pair
-	email string
 	// token is the private part of the API credential pair
 	token string
 	// measurementsService embeds the client and implements access to the Measurements API
@@ -51,11 +49,10 @@ type RequestErrorMessage map[string][]string
 
 type ParamErrorMessage []map[string]string
 
-func NewClient(email, token string) *Client {
+func NewClient(token string) *Client {
 	baseURL, _ := url.Parse(defaultBaseURL)
 	c := &Client{
 		client:  new(http.Client),
-		email:   email,
 		token:   token,
 		baseURL: baseURL,
 	}
@@ -91,7 +88,7 @@ func (c *Client) NewRequest(method, path string, body interface{}) (*http.Reques
 		return nil, err
 	}
 
-	req.SetBasicAuth(c.email, c.token)
+	req.SetBasicAuth("token", c.token)
 	req.Header.Set("Accept", defaultMediaType)
 	req.Header.Set("Content-Type", defaultMediaType)
 

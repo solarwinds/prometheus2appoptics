@@ -29,7 +29,7 @@ func main() {
 	portString := fmt.Sprintf(":%d", config.BindPort())
 	fmt.Println("[-] Starting on ", portString)
 
-	lc := appoptics.NewClient(config.AccessEmail(), config.AccessToken())
+	lc := appoptics.NewClient(config.AccessToken())
 
 	// prepChan holds groups of Measurements to be batched
 	prepChan := make(chan []*appoptics.Measurement)

@@ -10,13 +10,11 @@ var globalConf *Config
 
 // Flag vars
 var bindPort int
-var accessEmail string
 var accessToken string
 var sendStats bool
 
 func init() {
 	flag.IntVar(&bindPort, "bind-port", 4567, "the port the HTTP server binds to")
-	flag.StringVar(&accessEmail, "access-email", "", "the email account used for auth")
 	flag.StringVar(&accessToken, "access-token", "", "the API token used for auth")
 	flag.BoolVar(&sendStats, "send-stats", false, "sends data on the wire if true, prints to stdout if false")
 
@@ -35,16 +33,11 @@ type Config struct {
 func New() *Config {
 	return &Config{
 		bindPort:    bindPort,
-		accessEmail: accessEmail,
 		accessToken: accessToken,
 		sendStats:   sendStats,
 	}
 }
 
-// AccessEmail returns a string representing an email associated with a Librato API token
-func AccessEmail() string {
-	return globalConf.accessEmail
-}
 
 // AccessToken returns a string representing a Librato API token
 func AccessToken() string {
