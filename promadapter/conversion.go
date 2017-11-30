@@ -11,11 +11,11 @@ import (
 )
 
 //
-// The adapter package holds information necessary to convert from Prometheus types to types defined in the Librato
-// client library, as well as for creating API-compliant batches and using the Librato client to send them.
+// The adapter package holds information necessary to convert from Prometheus types to types defined in the AppOptics
+// client library, as well as for creating API-compliant batches and using the AppOptics client to send them.
 //
 
-func PromDataToLibratoMeasurements(req *promremote.WriteRequest) []*appoptics.Measurement {
+func PromDataToAppOpticsMeasurements(req *promremote.WriteRequest) []*appoptics.Measurement {
 	return samplesToMeasurements(writeRequestToSamples(req))
 }
 
@@ -40,7 +40,7 @@ func writeRequestToSamples(req *promremote.WriteRequest) model.Samples {
 	return samples
 }
 
-// samplesToMeasurements converts Prometheus common model Samples to a collection of Librato Measurements
+// samplesToMeasurements converts Prometheus common model Samples to a collection of AppOptics Measurements
 func samplesToMeasurements(samples model.Samples) []*appoptics.Measurement {
 	var measurements []*appoptics.Measurement
 	for _, s := range samples {
@@ -61,7 +61,7 @@ func samplesToMeasurements(samples model.Samples) []*appoptics.Measurement {
 	return measurements
 }
 
-// labelsToTags converts the Metric's associated Labels to Librato Tags
+// labelsToTags converts the Metric's associated Labels to AppOptics Tags
 func labelsToTags(sample *model.Sample) appoptics.MeasurementTags {
 	var mt = make(appoptics.MeasurementTags)
 	for k, v := range sample.Metric {

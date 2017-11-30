@@ -33,12 +33,12 @@ func receiveHandler(prepChan chan<- []*appoptics.Measurement) http.Handler {
 			return
 		}
 
-		prepChan <- promadapter.PromDataToLibratoMeasurements(&data)
+		prepChan <- promadapter.PromDataToAppOpticsMeasurements(&data)
 		w.WriteHeader(http.StatusAccepted)
 	})
 }
 
-// listSpacesHandler returns the Librato Spaces on the associated account and can be used as a test for credentials
+// listSpacesHandler returns the AppOptics Spaces on the associated account and can be used as a test for credentials
 func listSpacesHandler(lc appoptics.ServiceAccessor) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		spaces, resp, err := lc.SpacesService().List()
@@ -61,7 +61,7 @@ func listSpacesHandler(lc appoptics.ServiceAccessor) http.Handler {
 	})
 }
 
-// testMetricHandler sends a single fixture test Metric to Librato and is used in debugging
+// testMetricHandler sends a single fixture test Metric to AppOptics and is used in debugging
 func testMetricHandler(lc appoptics.ServiceAccessor) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		data, err := processRequestData(FixtureSamplePayload())
@@ -70,7 +70,7 @@ func testMetricHandler(lc appoptics.ServiceAccessor) http.Handler {
 			w.Write([]byte(err.Error()))
 			return
 		}
-		mc := promadapter.PromDataToLibratoMeasurements(&data)
+		mc := promadapter.PromDataToAppOpticsMeasurements(&data)
 		resp, err := lc.MeasurementsService().Create(mc)
 
 		if resp == nil {

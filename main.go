@@ -35,7 +35,7 @@ func main() {
 	prepChan := make(chan []*appoptics.Measurement)
 
 	// pushChan holds groups of Measurements conforming to the size constraint described
-	// by librato.MeasurementPostMaxBatchSize
+	// by AppOptics.MeasurementPostMaxBatchSize
 	pushChan := make(chan []*appoptics.Measurement)
 
 	// errorChan is used to track persistence errors and shutdown when too many are seen

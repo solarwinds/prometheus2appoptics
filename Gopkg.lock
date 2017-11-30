@@ -32,18 +32,6 @@
   revision = "553a641470496b2327abcac10b36396bd98e45c9"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/google/go-querystring"
-  packages = ["query"]
-  revision = "53e6ce116135b80d037921a7fdd5138cf32d7a8a"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/henrikhodne/go-librato"
-  packages = ["librato"]
-  revision = "72763185c9178442e2cfc959722821ce10880656"
-
-[[projects]]
   name = "github.com/matttproud/golang_protobuf_extensions"
   packages = ["pbutil"]
   revision = "3247c84500bff8d9fb6d579d800f20b3e091582c"
@@ -136,6 +124,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "d294eee5f9ebf738663cd7808bccebb0a1c9389b89bed33ad7a2a89a95abd764"
+  inputs-digest = "352ec1ae334317d3f0de39c1db3dd2d576b5707f3bd3c858c4a37815a04c69f2"
   solver-name = "gps-cdcl"
   solver-version = 1

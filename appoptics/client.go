@@ -9,11 +9,11 @@ import (
 	"net/url"
 )
 
-// ServiceAccessor defines an interface for talking to Librato via domain-specific service constructs
+// ServiceAccessor defines an interface for talking to  via domain-specific service constructs
 type ServiceAccessor interface {
-	// MeasurementsService implements an interface for dealing with Librato Measurements
+	// MeasurementsService implements an interface for dealing with  Measurements
 	MeasurementsService() MeasurementsCommunicator
-	// SpacesService implements an interface for dealing with Librato Spaces
+	// SpacesService implements an interface for dealing with  Spaces
 	SpacesService() SpacesCommunicator
 }
 
@@ -26,7 +26,7 @@ const (
 
 // Client implements ServiceAccessor
 type Client struct {
-	// baseURL is the base endpoint of the remote Librato service
+	// baseURL is the base endpoint of the remote  service
 	baseURL *url.URL
 	// client is the http.Client singleton used for wire interaction
 	client *http.Client
@@ -95,12 +95,12 @@ func (c *Client) NewRequest(method, path string, body interface{}) (*http.Reques
 	return req, nil
 }
 
-// MeasurementsService represents the subset of the API that deals with Librato Measurements
+// MeasurementsService represents the subset of the API that deals with AppOptics Measurements
 func (c *Client) MeasurementsService() MeasurementsCommunicator {
 	return c.measurementsService
 }
 
-// SpacesService represents the subset of the API that deals with Librato Measurements
+// SpacesService represents the subset of the API that deals with  Measurements
 func (c *Client) SpacesService() SpacesCommunicator {
 	return c.spacesService
 }

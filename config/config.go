@@ -39,7 +39,7 @@ func New() *Config {
 }
 
 
-// AccessToken returns a string representing a Librato API token
+// AccessToken returns a string representing a AppOptics API token
 func AccessToken() string {
 	return globalConf.accessToken
 }
@@ -54,7 +54,7 @@ func PushErrorLimit() int {
 	return 5
 }
 
-// SendStats returns true if the application should persist stats over the network to Librato, false otherwise
+// SendStats returns true if the application should persist stats over the network to AppOptics, false otherwise
 func SendStats() bool {
 	return globalConf.sendStats
 }

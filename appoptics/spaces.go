@@ -8,7 +8,7 @@ type SpacesResponse struct {
 	Spaces []*Space       `json:"spaces"`
 }
 
-// Space represents a single Librato Space
+// Space represents a single AppOptics Space
 type Space struct {
 	// ID is the unique identifier of the Space
 	ID int `json:"id"`
@@ -24,7 +24,7 @@ type SpacesService struct {
 	client *Client
 }
 
-// List implements the Librato Spaces API's List command
+// List implements the  Spaces API's List command
 func (s *SpacesService) List() ([]*Space, *http.Response, error) {
 	var spaces []*Space
 	req, err := s.client.NewRequest("GET", "spaces", nil)

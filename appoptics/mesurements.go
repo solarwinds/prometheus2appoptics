@@ -7,13 +7,13 @@ import (
 	"net/http"
 )
 
-// https://www.librato.com/docs/api/?shell#measurements
-// Measurements are the individual time series samples sent to Librato. They are
+// https://www.AppOptics.com/docs/api/?shell#measurements
+// Measurements are the individual time series samples sent to AppOptics. They are
 // associated by name with a Metric.
 
 type MeasurementTags map[string]string
 
-// Measurement corresponds to the Librato API type of the same name
+// Measurement corresponds to the AppOptics API type of the same name
 // TODO: support the full set of Measurement fields
 type Measurement struct {
 	// Name is the name of the Metric this Measurement is associated with
@@ -31,7 +31,7 @@ type MeasurementPayload struct {
 	Measurements []*Measurement `json:"measurements"`
 }
 
-// MeasurementsCommunicator defines an interface for communicating with the Measurements portion of the Librato API
+// MeasurementsCommunicator defines an interface for communicating with the Measurements portion of the AppOptics API
 type MeasurementsCommunicator interface {
 	Create([]*Measurement) (*http.Response, error)
 }
@@ -41,7 +41,7 @@ type MeasurementsService struct {
 	client *Client
 }
 
-// Create persists the given MeasurementCollection to Librato
+// Create persists the given MeasurementCollection to AppOptics
 func (ms *MeasurementsService) Create(mc []*Measurement) (*http.Response, error) {
 	payload := MeasurementPayload{mc}
 	req, err := ms.client.NewRequest("POST", "measurements", payload)
