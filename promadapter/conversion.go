@@ -7,7 +7,7 @@ import (
 
 	"github.com/prometheus/common/model"
 	promremote "github.com/prometheus/prometheus/storage/remote"
-	"github.com/solarwinds/p2l/appoptics"
+	"github.com/solarwinds/prometheus2appoptics/appoptics"
 )
 
 //

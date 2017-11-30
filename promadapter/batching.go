@@ -8,8 +8,8 @@ import (
 
 	"bytes"
 
-	"github.com/solarwinds/p2l/config"
-	"github.com/solarwinds/p2l/appoptics"
+	"github.com/solarwinds/prometheus2appoptics/config"
+	"github.com/solarwinds/prometheus2appoptics/appoptics"
 )
 
 // BatchMeasurements reads slices of librato.Measurement types off a channel populated by the web handler

@@ -12,8 +12,8 @@ import (
 	"github.com/golang/snappy"
 	"github.com/prometheus/common/model"
 	promremote "github.com/prometheus/prometheus/storage/remote"
-	"github.com/solarwinds/p2l/appoptics"
-	"github.com/solarwinds/p2l/promadapter"
+	"github.com/solarwinds/prometheus2appoptics/appoptics"
+	"github.com/solarwinds/prometheus2appoptics/promadapter"
 )
 
 // receiveHandler implements the code path for handling incoming Prometheus metrics

@@ -8,9 +8,9 @@ import (
 
 	"os"
 
-	"github.com/solarwinds/p2l/config"
-	"github.com/solarwinds/p2l/appoptics"
-	"github.com/solarwinds/p2l/promadapter"
+	"github.com/solarwinds/prometheus2appoptics/config"
+	"github.com/solarwinds/prometheus2appoptics/appoptics"
+	"github.com/solarwinds/prometheus2appoptics/promadapter"
 )
 
 // startTime helps us collect information on how long this process runs

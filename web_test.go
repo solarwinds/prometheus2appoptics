@@ -9,7 +9,7 @@ import (
 
 	"bytes"
 
-	"github.com/solarwinds/p2l/appoptics"
+	"github.com/solarwinds/prometheus2appoptics/appoptics"
 )
 
 func TestReceiveHandler(t *testing.T) {
