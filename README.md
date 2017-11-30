@@ -1,6 +1,6 @@
-# AppOptics as Prometheus remote storage provider
+# Prometheus remote storage provider for AppOptics
 
-[![CircleCI](https://circleci.com/gh/solarwinds/p2l.svg?style=svg&circle-token=de9c33d8cfa8724aadc105c798d57dca9060dc81)](https://circleci.com/gh/solarwinds/p2l)
+![CircleCI](https://circleci.com/gh/solarwinds/prometheus2appoptics.svg?style=svg&circle-token=51448f9d74b885c408a0831b4f81134a422f0f5c)
 
 An implementation of a Prometheus [remote storage adapter](/prometheus/prometheus/tree/master/documentation/examples/remote_storage/remote_storage_adapter) for AppOptics.
 
