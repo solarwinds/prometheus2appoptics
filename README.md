@@ -1,16 +1,16 @@
-# Librato & AppOptics as Prometheus remote storage provider
+# AppOptics as Prometheus remote storage provider
 
 [![CircleCI](https://circleci.com/gh/solarwinds/p2l.svg?style=svg&circle-token=de9c33d8cfa8724aadc105c798d57dca9060dc81)](https://circleci.com/gh/solarwinds/p2l)
 
-An implementation of a Prometheus [remote storage adapter](/prometheus/prometheus/tree/master/documentation/examples/remote_storage/remote_storage_adapter) for Librato and AppOptics.
+An implementation of a Prometheus [remote storage adapter](/prometheus/prometheus/tree/master/documentation/examples/remote_storage/remote_storage_adapter) for AppOptics.
 
-`p2l` is a web application that handles incoming payloads of Prometheus Sample data and then converts it into Librato Measurement semantics and pushes that up to Librato's REST API in rate-limit-compliant batches.
+`prometheus2appoptics` is a web application that handles incoming payloads of Prometheus Sample data and then converts it into AppOptics Measurement semantics and pushes that up to AppOptics' REST API in rate-limit-compliant batches.
 
 **Assumptions:**
 
-* All Prometheus `Labels` can be converted into Librato `Measurement Tags`
+* All Prometheus `Labels` can be converted into AppOptics `Measurement Tags`
 * Any Prometheus sample w/ a NaN value is worthless and can be discarded
-* p2l will handle any difference in throughput between Prometheus' remote storage flush rate and Librato's ingestion limit. As of Prometheus 1.7, the storage rate of remote storage sample queues is not configurable, but such options exist internally and the exposure of those options is [scheduled for the 2.0 release](https://github.com/prometheus/prometheus/issues/3095))
+* prometheus2appoptics will handle any difference in throughput between Prometheus' remote storage flush rate and AppOptics's ingestion limit. As of Prometheus 1.7, the storage rate of remote storage sample queues is not configurable, but such options exist internally and the exposure of those options is [scheduled for the 2.0 release](https://github.com/prometheus/prometheus/issues/3095))
 
 ## Deployment
 Two methods of deployment supported:
@@ -19,7 +19,7 @@ Two methods of deployment supported:
 2. (Recommended) Deployment via Docker container
 
 ### Deploying as a Container
-`docker run --env ACCESS_EMAIL=<LIBRATO_EMAIL> --env ACCESS_TOKEN=<LIBRATO_TOKEN> --env SEND_STATS=true -p 4567 solarwinds/p2l`
+`docker run --env ACCESS_TOKEN=<APPOPTICS_TOKEN> --env SEND_STATS=true -p 4567 solarwinds/prometheus2appoptics`
 
 ### Configuring Prometheus
 
@@ -39,8 +39,8 @@ remote_write:
 `go get -u github.com/golang/dep/cmd/dep`
 
 
-#### p2l
-Assuming you have a standard Go environment with a checkout of the p2l code in the normal place and the `dep` tool in your `$PATH`, you can install the project's dependencies with:
+#### prometheus2appoptics
+Assuming you have a standard Go environment with a checkout of the prometheus2appoptics code in the normal place and the `dep` tool in your `$PATH`, you can install the project's dependencies with:
 
 `dep ensure`
 
@@ -48,11 +48,11 @@ Then create the bin with
 
 `make`
 
-p2l supports [several runtime flags](https://github.com/solarwinds/p2l/blob/master/config/config.go#L18-L21) for configuration:
+prometheus2appoptics supports [several runtime flags](https://github.com/solarwinds/prometheus2appoptics/blob/master/config/config.go#L18-L21) for configuration:
 
 ```
 --bind-port (the port the HTTP handler will bind to - defaults to 4567)
---send-stats (sends stats to Librato if true, to stdout if false - defaults to false)
+--send-stats (sends stats to AppOptics if true, to stdout if false - defaults to false)
 --access-email (email address associated with API token - defaults to "")
 --access-token (API token string - defaults to "")
 ```

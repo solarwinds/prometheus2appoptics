@@ -7,7 +7,7 @@ import (
 
 	"github.com/prometheus/common/model"
 	promremote "github.com/prometheus/prometheus/storage/remote"
-	"github.com/solarwinds/p2l/librato"
+	"github.com/solarwinds/p2l/appoptics"
 )
 
 //
@@ -15,7 +15,7 @@ import (
 // client library, as well as for creating API-compliant batches and using the Librato client to send them.
 //
 
-func PromDataToLibratoMeasurements(req *promremote.WriteRequest) []*librato.Measurement {
+func PromDataToLibratoMeasurements(req *promremote.WriteRequest) []*appoptics.Measurement {
 	return samplesToMeasurements(writeRequestToSamples(req))
 }
 
@@ -41,8 +41,8 @@ func writeRequestToSamples(req *promremote.WriteRequest) model.Samples {
 }
 
 // samplesToMeasurements converts Prometheus common model Samples to a collection of Librato Measurements
-func samplesToMeasurements(samples model.Samples) []*librato.Measurement {
-	var measurements []*librato.Measurement
+func samplesToMeasurements(samples model.Samples) []*appoptics.Measurement {
+	var measurements []*appoptics.Measurement
 	for _, s := range samples {
 		if math.IsNaN(float64(s.Value)) {
 			continue
@@ -50,7 +50,7 @@ func samplesToMeasurements(samples model.Samples) []*librato.Measurement {
 
 		msTime := time.Duration(s.Timestamp) / time.Microsecond
 
-		m := &librato.Measurement{
+		m := &appoptics.Measurement{
 			Name:  string(s.Metric[model.MetricNameLabel]),
 			Value: float64(s.Value),
 			Time:  int64(msTime),
@@ -62,8 +62,8 @@ func samplesToMeasurements(samples model.Samples) []*librato.Measurement {
 }
 
 // labelsToTags converts the Metric's associated Labels to Librato Tags
-func labelsToTags(sample *model.Sample) librato.MeasurementTags {
-	var mt = make(librato.MeasurementTags)
+func labelsToTags(sample *model.Sample) appoptics.MeasurementTags {
+	var mt = make(appoptics.MeasurementTags)
 	for k, v := range sample.Metric {
 		if k == model.MetricNameLabel {
 			continue

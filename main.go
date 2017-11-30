@@ -9,7 +9,7 @@ import (
 	"os"
 
 	"github.com/solarwinds/p2l/config"
-	"github.com/solarwinds/p2l/librato"
+	"github.com/solarwinds/p2l/appoptics"
 	"github.com/solarwinds/p2l/promadapter"
 )
 
@@ -29,14 +29,14 @@ func main() {
 	portString := fmt.Sprintf(":%d", config.BindPort())
 	fmt.Println("[-] Starting on ", portString)
 
-	lc := librato.NewClient(config.AccessEmail(), config.AccessToken())
+	lc := appoptics.NewClient(config.AccessEmail(), config.AccessToken())
 
 	// prepChan holds groups of Measurements to be batched
-	prepChan := make(chan []*librato.Measurement)
+	prepChan := make(chan []*appoptics.Measurement)
 
 	// pushChan holds groups of Measurements conforming to the size constraint described
 	// by librato.MeasurementPostMaxBatchSize
-	pushChan := make(chan []*librato.Measurement)
+	pushChan := make(chan []*appoptics.Measurement)
 
 	// errorChan is used to track persistence errors and shutdown when too many are seen
 	errorChan := make(chan error)

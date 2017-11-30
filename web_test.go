@@ -9,13 +9,13 @@ import (
 
 	"bytes"
 
-	"github.com/solarwinds/p2l/librato"
+	"github.com/solarwinds/p2l/appoptics"
 )
 
 func TestReceiveHandler(t *testing.T) {
 	// simple hack to ensure we don't block forever
-	prepChan := make(chan []*librato.Measurement)
-	go func(prepChan <-chan []*librato.Measurement) {
+	prepChan := make(chan []*appoptics.Measurement)
+	go func(prepChan <-chan []*appoptics.Measurement) {
 		_ = <-prepChan
 	}(prepChan)
 
