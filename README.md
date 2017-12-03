@@ -65,4 +65,4 @@ prometheus2appoptics supports [several runtime flags](https://github.com/solarwi
 * You can also run the [node exporter](https://github.com/prometheus/node_exporter) on your local system for local stats. Remember to set up a target section in the config file.
 
 # Questions/Comments?
-Please [open an issue](/issues/new), we'd love to hear from you. As a SolarWinds Innovation Project, this adapter is supported in a best-effort fashion.
+Please [open an issue](https://github.com/solarwinds/prometheus2appoptics/issues/new), we'd love to hear from you. As a SolarWinds Innovation Project, this adapter is supported in a best-effort fashion.
