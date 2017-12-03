@@ -63,3 +63,6 @@ prometheus2appoptics supports [several runtime flags](https://github.com/solarwi
 * Open `prometheus.yml` and configure it with running services.
 * To just have *some* data, you can [install the "random" RPC process from Prometheus](https://prometheus.io/docs/introduction/getting_started/#starting-up-some-sample-targets) and run several of them at once
 * You can also run the [node exporter](https://github.com/prometheus/node_exporter) on your local system for local stats. Remember to set up a target section in the config file.
+
+# Questions/Comments?
+Please [open an issue](https://github.com/solarwinds/containers/issues/new), we'd love to hear from you. As a SolarWinds Innovation Project, this adapter is supported in a best-effort fashion.
