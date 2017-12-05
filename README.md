@@ -2,6 +2,8 @@
 
 ![CircleCI](https://circleci.com/gh/solarwinds/prometheus2appoptics.svg?style=svg&circle-token=51448f9d74b885c408a0831b4f81134a422f0f5c)
 
+**NOTE**: this is considered **EXPERIMENTAL** and is not yet recommended for production systems.
+
 An implementation of a Prometheus [remote storage adapter](/prometheus/prometheus/tree/master/documentation/examples/remote_storage/remote_storage_adapter) for AppOptics.
 
 `prometheus2appoptics` is a web application that handles incoming payloads of Prometheus Sample data and then converts it into AppOptics Measurement semantics and pushes that up to AppOptics' REST API in rate-limit-compliant batches.
