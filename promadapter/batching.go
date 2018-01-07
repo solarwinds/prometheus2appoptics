@@ -9,21 +9,24 @@ import (
 	"bytes"
 
 	"github.com/solarwinds/prometheus2appoptics/config"
-	"github.com/solarwinds/prometheus2appoptics/appoptics"
+	"github.com/librato/appoptics-api-go"
+
 )
 
 // BatchMeasurements reads slices of AppOptics.Measurement types off a channel populated by the web handler
 // and packages them into batches conforming to the limitations imposed by the API.
-func BatchMeasurements(prepChan <-chan []*appoptics.Measurement, pushChan chan<- []*appoptics.Measurement, stopChan <-chan bool) {
-	var currentBatch []*appoptics.Measurement
+func BatchMeasurements(prepChan <-chan []appoptics.Measurement, batchChan chan<- *appoptics.MeasurementsBatch, stopChan <-chan bool) {
+	var ms = []appoptics.Measurement{}
 	for {
 		select {
 		case mslice := <-prepChan:
-			currentBatch = append(currentBatch, mslice...)
-			if len(currentBatch) >= appoptics.MeasurementPostMaxBatchSize {
-				pushBatch := currentBatch[:appoptics.MeasurementPostMaxBatchSize]
-				pushChan <- pushBatch
-				currentBatch = currentBatch[appoptics.MeasurementPostMaxBatchSize:]
+			ms = append(ms, mslice...)
+			if len(ms) >= appoptics.MeasurementPostMaxBatchSize {
+				pushBatch := &appoptics.MeasurementsBatch{
+					Measurements: ms[:appoptics.MeasurementPostMaxBatchSize],
+				}
+				batchChan <- pushBatch
+				ms = ms[appoptics.MeasurementPostMaxBatchSize:]
 			}
 		case <-stopChan:
 			break
@@ -33,12 +36,12 @@ func BatchMeasurements(prepChan <-chan []*appoptics.Measurement, pushChan chan<-
 
 // PersistBatches reads maximal slices of AppOptics.Measurement types off a channel and persists them to the remote AppOptics
 // API. Errors are placed on the error channel.
-func PersistBatches(lc appoptics.ServiceAccessor, pushChan <-chan []*appoptics.Measurement, stopChan <-chan bool, errorChan chan<- error) {
+func PersistBatches(lc appoptics.ServiceAccessor, batchChan <-chan *appoptics.MeasurementsBatch, stopChan <-chan bool, errorChan chan<- error) {
 	ticker := time.NewTicker(time.Millisecond * 500)
 	for {
 		select {
 		case <-ticker.C:
-			batch := <-pushChan
+			batch := <-batchChan
 			err := persistBatch(lc, batch)
 			if err != nil {
 				errorChan <- err
@@ -67,9 +70,9 @@ func ManagePersistenceErrors(errorChan <-chan error, stopChan chan<- bool) {
 }
 
 // persistBatch sends to the remote AppOptics endpoint unless config.SendStats() returns false, when it prints to stdout
-func persistBatch(lc appoptics.ServiceAccessor, batch []*appoptics.Measurement) error {
+func persistBatch(lc appoptics.ServiceAccessor, batch *appoptics.MeasurementsBatch) error {
 	if config.SendStats() {
-		log.Printf("persisting %d Measurements to AppOptics\n", len(batch))
+		log.Printf("persisting %d Measurements to AppOptics\n", len(batch.Measurements))
 		resp, err := lc.MeasurementsService().Create(batch)
 		if resp == nil {
 			fmt.Println("response is nil")
@@ -77,13 +80,13 @@ func persistBatch(lc appoptics.ServiceAccessor, batch []*appoptics.Measurement) 
 		}
 		dumpResponse(resp)
 	} else {
-		printMeasurements(batch)
+		printMeasurements(batch.Measurements)
 	}
 	return nil
 }
 
 // printMeasurements pretty-prints the supplied measurements to stdout
-func printMeasurements(data []*appoptics.Measurement) {
+func printMeasurements(data []appoptics.Measurement) {
 	for _, measurement := range data {
 		fmt.Printf("\nMetric name: '%s' \n", measurement.Name)
 		fmt.Printf("\t value: %d \n", measurement.Value)

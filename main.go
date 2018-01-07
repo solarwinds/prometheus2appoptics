@@ -9,8 +9,9 @@ import (
 	"os"
 
 	"github.com/solarwinds/prometheus2appoptics/config"
-	"github.com/solarwinds/prometheus2appoptics/appoptics"
 	"github.com/solarwinds/prometheus2appoptics/promadapter"
+
+	"github.com/librato/appoptics-api-go"
 )
 
 // startTime helps us collect information on how long this process runs
@@ -32,17 +33,17 @@ func main() {
 	lc := appoptics.NewClient(config.AccessToken())
 
 	// prepChan holds groups of Measurements to be batched
-	prepChan := make(chan []*appoptics.Measurement)
+	prepChan := make(chan []appoptics.Measurement)
 
 	// pushChan holds groups of Measurements conforming to the size constraint described
 	// by AppOptics.MeasurementPostMaxBatchSize
-	pushChan := make(chan []*appoptics.Measurement)
+	batchChan := make(chan *appoptics.MeasurementsBatch)
 
 	// errorChan is used to track persistence errors and shutdown when too many are seen
 	errorChan := make(chan error)
 
-	go promadapter.BatchMeasurements(prepChan, pushChan, stopChan)
-	go promadapter.PersistBatches(lc, pushChan, stopChan, errorChan)
+	go promadapter.BatchMeasurements(prepChan, batchChan, stopChan)
+	go promadapter.PersistBatches(lc, batchChan, stopChan, errorChan)
 	go promadapter.ManagePersistenceErrors(errorChan, stopChan)
 
 	http.Handle("/receive", receiveHandler(prepChan))

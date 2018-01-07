@@ -9,13 +9,13 @@ import (
 
 	"bytes"
 
-	"github.com/solarwinds/prometheus2appoptics/appoptics"
+	"github.com/librato/appoptics-api-go"
 )
 
 func TestReceiveHandler(t *testing.T) {
 	// simple hack to ensure we don't block forever
-	prepChan := make(chan []*appoptics.Measurement)
-	go func(prepChan <-chan []*appoptics.Measurement) {
+	prepChan := make(chan []appoptics.Measurement)
+	go func(prepChan <-chan []appoptics.Measurement) {
 		_ = <-prepChan
 	}(prepChan)
 
