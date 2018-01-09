@@ -8,10 +8,6 @@
 
 [[constraint]]
   branch = "master"
-  name = "github.com/henrikhodne/go-librato"
-
-[[constraint]]
-  branch = "master"
   name = "github.com/prometheus/common"
 
 [[constraint]]
