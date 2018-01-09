@@ -32,9 +32,10 @@
   revision = "553a641470496b2327abcac10b36396bd98e45c9"
 
 [[projects]]
+  branch = "feature/4/native-batching"
   name = "github.com/librato/appoptics-api-go"
   packages = ["."]
-  revision = "3bd283b01593e052962c836b9986271098d0b264"
+  revision = "12bd77ce317bd58e8480e689857dcaab908c5059"
 
 [[projects]]
   name = "github.com/matttproud/golang_protobuf_extensions"
@@ -129,6 +130,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "cde2a67a5075d154766cc2b1736ca05fe7b35b71c1ee2843672db2e6b4e6defe"
+  inputs-digest = "b69533abcd0e5592c34e25600aba0830688fb2f8b6b421702d41d71058b0a75f"
   solver-name = "gps-cdcl"
   solver-version = 1

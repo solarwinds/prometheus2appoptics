@@ -29,7 +29,7 @@ func main() {
 	fmt.Println("[-] Starting on ", portString)
 
 	lc := appoptics.NewClient(config.AccessToken())
-	bp := appoptics.NewBatchPersister(lc.MeasurementsService())
+	bp := appoptics.NewBatchPersister(lc.MeasurementsService(), config.SendStats())
 	bp.BatchAndPersistMeasurementsForever()
 
 	stopChan = bp.MeasurementsStopBatchingChannel()
