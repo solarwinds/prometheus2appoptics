@@ -34,7 +34,11 @@ func receiveHandler(prepChan chan<- []appoptics.Measurement) http.Handler {
 			return
 		}
 
-		prepChan <- promadapter.PromDataToAppOpticsMeasurements(&data)
+		// TODO: make this conditional upon log level
+		convertedData := promadapter.PromDataToAppOpticsMeasurements(&data)
+		log.Println("measurements received - ", len(convertedData))
+
+		prepChan <- convertedData
 		w.WriteHeader(http.StatusAccepted)
 	})
 }

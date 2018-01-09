@@ -32,7 +32,7 @@ func main() {
 	bp := appoptics.NewBatchPersister(lc.MeasurementsService())
 	bp.BatchAndPersistMeasurementsForever()
 
-	stopChan = bp.MeasurementsStopChannel()
+	stopChan = bp.MeasurementsStopBatchingChannel()
 
 	http.Handle("/receive", receiveHandler(bp.MeasurementsSink()))
 	http.Handle("/spaces", listSpacesHandler(lc))
