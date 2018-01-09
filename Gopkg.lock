@@ -32,6 +32,11 @@
   revision = "553a641470496b2327abcac10b36396bd98e45c9"
 
 [[projects]]
+  name = "github.com/librato/appoptics-api-go"
+  packages = ["."]
+  revision = "3bd283b01593e052962c836b9986271098d0b264"
+
+[[projects]]
   name = "github.com/matttproud/golang_protobuf_extensions"
   packages = ["pbutil"]
   revision = "3247c84500bff8d9fb6d579d800f20b3e091582c"
@@ -76,8 +81,8 @@
 [[projects]]
   name = "github.com/sirupsen/logrus"
   packages = ["."]
-  revision = "f006c2ac4710855cf0f916dd6b77acf6b048dc6e"
-  version = "v1.0.3"
+  revision = "d682213848ed68c0a260ca37d6dd5ace8423f5ba"
+  version = "v1.0.4"
 
 [[projects]]
   branch = "master"
@@ -124,6 +129,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "352ec1ae334317d3f0de39c1db3dd2d576b5707f3bd3c858c4a37815a04c69f2"
+  inputs-digest = "cde2a67a5075d154766cc2b1736ca05fe7b35b71c1ee2843672db2e6b4e6defe"
   solver-name = "gps-cdcl"
   solver-version = 1

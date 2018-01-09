@@ -9,8 +9,8 @@ import (
 	"os"
 
 	"github.com/solarwinds/prometheus2appoptics/config"
-	"github.com/solarwinds/prometheus2appoptics/appoptics"
-	"github.com/solarwinds/prometheus2appoptics/promadapter"
+
+	"github.com/librato/appoptics-api-go"
 )
 
 // startTime helps us collect information on how long this process runs
@@ -19,8 +19,7 @@ var startTime = time.Now().UTC()
 // osSignalChan is used to handle SIGINT
 var osSignalChan = make(chan os.Signal, 1)
 
-// stopChan is used for controlling the batching/sending flow & graceful shutdown
-var stopChan = make(chan bool)
+var stopChan chan<- bool
 
 func main() {
 	signal.Notify(osSignalChan, os.Interrupt)
@@ -30,22 +29,12 @@ func main() {
 	fmt.Println("[-] Starting on ", portString)
 
 	lc := appoptics.NewClient(config.AccessToken())
+	bp := appoptics.NewBatchPersister(lc.MeasurementsService())
+	bp.BatchAndPersistMeasurementsForever()
 
-	// prepChan holds groups of Measurements to be batched
-	prepChan := make(chan []*appoptics.Measurement)
+	stopChan = bp.MeasurementsStopBatchingChannel()
 
-	// pushChan holds groups of Measurements conforming to the size constraint described
-	// by AppOptics.MeasurementPostMaxBatchSize
-	pushChan := make(chan []*appoptics.Measurement)
-
-	// errorChan is used to track persistence errors and shutdown when too many are seen
-	errorChan := make(chan error)
-
-	go promadapter.BatchMeasurements(prepChan, pushChan, stopChan)
-	go promadapter.PersistBatches(lc, pushChan, stopChan, errorChan)
-	go promadapter.ManagePersistenceErrors(errorChan, stopChan)
-
-	http.Handle("/receive", receiveHandler(prepChan))
+	http.Handle("/receive", receiveHandler(bp.MeasurementsSink()))
 	http.Handle("/spaces", listSpacesHandler(lc))
 	http.Handle("/test", testMetricHandler(lc))
 

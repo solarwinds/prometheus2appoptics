@@ -12,12 +12,13 @@ import (
 	"github.com/golang/snappy"
 	"github.com/prometheus/common/model"
 	promremote "github.com/prometheus/prometheus/storage/remote"
-	"github.com/solarwinds/prometheus2appoptics/appoptics"
 	"github.com/solarwinds/prometheus2appoptics/promadapter"
+
+	"github.com/librato/appoptics-api-go"
 )
 
 // receiveHandler implements the code path for handling incoming Prometheus metrics
-func receiveHandler(prepChan chan<- []*appoptics.Measurement) http.Handler {
+func receiveHandler(prepChan chan<- []appoptics.Measurement) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		compressed, err := ioutil.ReadAll(r.Body)
 		if err != nil {
@@ -33,7 +34,11 @@ func receiveHandler(prepChan chan<- []*appoptics.Measurement) http.Handler {
 			return
 		}
 
-		prepChan <- promadapter.PromDataToAppOpticsMeasurements(&data)
+		// TODO: make this conditional upon log level
+		convertedData := promadapter.PromDataToAppOpticsMeasurements(&data)
+		log.Println("measurements received - ", len(convertedData))
+
+		prepChan <- convertedData
 		w.WriteHeader(http.StatusAccepted)
 	})
 }
@@ -71,7 +76,10 @@ func testMetricHandler(lc appoptics.ServiceAccessor) http.Handler {
 			return
 		}
 		mc := promadapter.PromDataToAppOpticsMeasurements(&data)
-		resp, err := lc.MeasurementsService().Create(mc)
+		batch := &appoptics.MeasurementsBatch{
+			Measurements: mc,
+		}
+		resp, err := lc.MeasurementsService().Create(batch)
 
 		if resp == nil {
 			log.Println("*http.Response was nil")
