@@ -16,4 +16,4 @@
 
 [[constraint]]
   name="github.com/librato/appoptics-api-go"
-  branch="feature/4/native-batching"
+  version = "0.2.0"
