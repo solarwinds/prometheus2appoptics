@@ -15,5 +15,5 @@
   version = "1.7.2"
 
 [[constraint]]
-  name="github.com/librato/appoptics-api-go"
-  version = "0.2.0"
+  name="github.com/appoptics/appoptics-api-go"
+  version = "0.2.2"
