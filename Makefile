@@ -1,18 +1,19 @@
 .PHONY: build clean doc test vet run docker publish
 
 image_name := solarwinds/prometheus2appoptics
+app_name := prometheus2appoptics
 excluding_vendor := $(shell go list ./... | grep -v /vendor/)
 
 default: build
 
 build:
-	go build -i -o prometheus2appoptics
+	go build -i -o $(app_name)
 
 clean:
-	rm -f prometheus2appoptics
+	rm -f $(app_name)
 
 run:
-	make build && ./prometheus2appoptics
+	make build && ./$(app_name)
 
 docker:
 	GOOS=linux GOARCH=amd64 go build && docker build -t $(image_name) . && make clean && make build
@@ -29,3 +30,7 @@ doc:
 
 vet:
 	go vet ./..
+
+release:
+	make build
+	git tag -a $(shell ./$(app_name) -version)

@@ -14,7 +14,7 @@ import (
 	promremote "github.com/prometheus/prometheus/storage/remote"
 	"github.com/solarwinds/prometheus2appoptics/promadapter"
 
-	"github.com/librato/appoptics-api-go"
+	"github.com/appoptics/appoptics-api-go"
 )
 
 // receiveHandler implements the code path for handling incoming Prometheus metrics

@@ -9,7 +9,7 @@ import (
 
 	"bytes"
 
-	"github.com/librato/appoptics-api-go"
+	"github.com/appoptics/appoptics-api-go"
 )
 
 func TestReceiveHandler(t *testing.T) {

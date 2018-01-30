@@ -10,7 +10,7 @@ import (
 
 	"github.com/solarwinds/prometheus2appoptics/config"
 
-	"github.com/librato/appoptics-api-go"
+	"github.com/appoptics/appoptics-api-go"
 )
 
 // startTime helps us collect information on how long this process runs
@@ -22,13 +22,21 @@ var osSignalChan = make(chan os.Signal, 1)
 var stopChan chan<- bool
 
 func main() {
+	if config.PrintVersionAndExit() {
+		fmt.Printf(config.VersionString())
+		os.Exit(0)
+	}
+
 	signal.Notify(osSignalChan, os.Interrupt)
 	go handleShutdown()
 
 	portString := fmt.Sprintf(":%d", config.BindPort())
 	fmt.Println("[-] Starting on ", portString)
 
-	lc := appoptics.NewClient(config.AccessToken())
+	userAgentFragment := fmt.Sprintf("%s-%s", config.AppName, config.VersionString())
+
+	lc := appoptics.NewClient(config.AccessToken(), appoptics.UserAgentClientOption(userAgentFragment))
+
 	bp := appoptics.NewBatchPersister(lc.MeasurementsService(), config.SendStats())
 	bp.BatchAndPersistMeasurementsForever()
 
