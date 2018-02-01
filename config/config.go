@@ -13,7 +13,7 @@ const AppName = "prometheus2appoptics"
 var(
 	MajorVersion = 0
 	MinorVersion = 2
-	PatchVersion = 3
+	PatchVersion = 4
 )
 
 // globalConf is the Config singleton
