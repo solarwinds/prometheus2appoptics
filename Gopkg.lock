@@ -16,8 +16,8 @@
 [[projects]]
   name = "github.com/appoptics/appoptics-api-go"
   packages = ["."]
-  revision = "2a4190db9ad5fa5d73c7678d87aecc7a64ff006c"
-  version = "0.2.2"
+  revision = "2cbca4f36e0f89e937e8df33ca131173b7bb77c2"
+  version = "0.2.3"
 
 [[projects]]
   name = "github.com/aws/aws-sdk-go"
@@ -153,6 +153,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "7e48f9a0d5fb357ccda781090822db0032f30b6d9be8350b50e966e9cce56215"
+  inputs-digest = "7b16f336970974ac1440b520ff884c85c8796c2f68f1cf0ed16a362d06ded645"
   solver-name = "gps-cdcl"
   solver-version = 1

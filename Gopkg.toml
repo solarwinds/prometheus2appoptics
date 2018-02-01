@@ -16,4 +16,4 @@
 
 [[constraint]]
   name="github.com/appoptics/appoptics-api-go"
-  version = "0.2.2"
+  version = "0.2.3"
