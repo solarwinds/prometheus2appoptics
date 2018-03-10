@@ -60,8 +60,8 @@ prometheus2appoptics supports [several runtime flags](https://github.com/solarwi
 ```
 
 #### Prometheus
-* Install Prometheus by downloading the [latest stable release](https://github.com/prometheus/prometheus/releases/tag/v1.7.2)
-* Untar the download and put it anywhere you want
+* Install Prometheus by downloading the [latest stable release](https://prometheus.io/download)
+* Untar the download and put it anywhere you want.
 * Open `prometheus.yml` and configure it with running services.
 * To just have *some* data, you can [install the "random" RPC process from Prometheus](https://prometheus.io/docs/introduction/getting_started/#starting-up-some-sample-targets) and run several of them at once
 * You can also run the [node exporter](https://github.com/prometheus/node_exporter) on your local system for local stats. Remember to set up a target section in the config file.
