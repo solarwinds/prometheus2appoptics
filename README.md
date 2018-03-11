@@ -50,7 +50,7 @@ Then create the bin with
 
 `make`
 
-prometheus2appoptics supports [several runtime flags](https://github.com/solarwinds/prometheus2appoptics/blob/master/config/config.go#L18-L21) for configuration:
+prometheus2appoptics supports [several runtime flags](https://github.com/solarwinds/prometheus2appoptics/blob/master/config/config.go#L29-L32) for configuration:
 
 ```
 --bind-port (the port the HTTP handler will bind to - defaults to 4567)
