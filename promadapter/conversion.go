@@ -16,11 +16,11 @@ import (
 //
 
 func PromDataToAppOpticsMeasurements(req *promremote.WriteRequest) []appoptics.Measurement {
-	return samplesToMeasurements(writeRequestToSamples(req))
+	return SamplesToMeasurements(WriteRequestToSamples(req))
 }
 
-// writeRequestToSamples converts a Prometheus remote storage WriteRequest to a collection of Prometheus common model Samples
-func writeRequestToSamples(req *promremote.WriteRequest) model.Samples {
+// WriteRequestToSamples converts a Prometheus remote storage WriteRequest to a collection of Prometheus common model Samples
+func WriteRequestToSamples(req *promremote.WriteRequest) model.Samples {
 	var samples model.Samples
 	for _, ts := range req.Timeseries {
 		metric := make(model.Metric, len(ts.Labels))
@@ -40,8 +40,8 @@ func writeRequestToSamples(req *promremote.WriteRequest) model.Samples {
 	return samples
 }
 
-// samplesToMeasurements converts Prometheus common model Samples to a collection of AppOptics Measurements
-func samplesToMeasurements(samples model.Samples) []appoptics.Measurement {
+// SamplesToMeasurements converts Prometheus common model Samples to a collection of AppOptics Measurements
+func SamplesToMeasurements(samples model.Samples) []appoptics.Measurement {
 	var measurements []appoptics.Measurement
 	for _, s := range samples {
 		if math.IsNaN(float64(s.Value)) {
@@ -54,15 +54,15 @@ func samplesToMeasurements(samples model.Samples) []appoptics.Measurement {
 			Name:  string(s.Metric[model.MetricNameLabel]),
 			Value: float64(s.Value),
 			Time:  int64(msTime),
-			Tags:  labelsToTags(s),
+			Tags:  LabelsToTags(s),
 		}
 		measurements = append(measurements, m)
 	}
 	return measurements
 }
 
-// labelsToTags converts the Metric's associated Labels to AppOptics Tags
-func labelsToTags(sample *model.Sample) map[string]string {
+// LabelsToTags converts the Metric's associated Labels to AppOptics Tags
+func LabelsToTags(sample *model.Sample) map[string]string {
 	var mt = make(map[string]string)
 	for k, v := range sample.Metric {
 		if k == model.MetricNameLabel {
