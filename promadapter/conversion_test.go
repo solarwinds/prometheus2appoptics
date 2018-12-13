@@ -26,7 +26,7 @@ var promSamples = model.Samples{
 }
 
 func TestSamplesToMeasurements(t *testing.T) {
-	ms := samplesToMeasurements(promSamples)
+	ms := SamplesToMeasurements(promSamples)
 
 	for i, measurement := range ms {
 		castTime := int64((time.Duration(promSamples[i].Timestamp)) / time.Microsecond)
@@ -38,18 +38,18 @@ func TestSamplesToMeasurements(t *testing.T) {
 		}
 
 		if castValue != measurement.Value {
-			t.Errorf("expected %d to match %d", castValue, measurement.Value)
+			t.Errorf("expected %f to match %f", castValue, measurement.Value)
 		}
 
 		if castName != measurement.Name {
-			t.Errorf("expected %d to match %d", castName, measurement.Name)
+			t.Errorf("expected %s to match %s", castName, measurement.Name)
 		}
 	}
 }
 
 func TestLabelsToTags(t *testing.T) {
 	sample := promSamples[0]
-	tags := labelsToTags(sample)
+	tags := LabelsToTags(sample)
 	for k, v := range tags {
 		labelName := model.LabelName(k)
 		if model.LabelValue(v) != sample.Metric[labelName] {
