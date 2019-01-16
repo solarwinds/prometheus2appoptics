@@ -1,6 +1,7 @@
 package promadapter
 
 import (
+	promremote "github.com/prometheus/prometheus/storage/remote"
 	"testing"
 	"time"
 
@@ -26,7 +27,8 @@ var promSamples = model.Samples{
 }
 
 func TestSamplesToMeasurements(t *testing.T) {
-	ms := SamplesToMeasurements(promSamples)
+	adapter := NewPromAdapter()
+	ms := adapter.SamplesToMeasurements(promSamples)
 
 	for i, measurement := range ms {
 		castTime := int64((time.Duration(promSamples[i].Timestamp)) / time.Microsecond)
@@ -49,12 +51,34 @@ func TestSamplesToMeasurements(t *testing.T) {
 
 func TestLabelsToTags(t *testing.T) {
 	sample := promSamples[0]
-	tags := LabelsToTags(sample)
+	adapter := NewPromAdapter()
+	tags := adapter.LabelsToTags(sample)
 	for k, v := range tags {
 		labelName := model.LabelName(k)
 		if model.LabelValue(v) != sample.Metric[labelName] {
 			t.Errorf("expected %s to map to %s but it didn't", k, sample.Metric[labelName])
 		}
 
+	}
+}
+
+func TestWriteRequestToSamples(t *testing.T) {
+	samples := []*promremote.Sample{{
+		Value:       valueFixture,
+		TimestampMs: timestampFixture,
+	}}
+
+	labels := []*promremote.LabelPair{{Name: "Label", Value: "Value"}}
+
+	tss := []*promremote.TimeSeries{{Samples: samples, Labels: labels}}
+	wr := promremote.WriteRequest{tss}
+	adapter := NewPromAdapter()
+
+	modelSamples := adapter.PromDataToAppOpticsMeasurements(&wr)
+
+	for _, s := range modelSamples {
+		if int(s.Value.(float64)) != int(samples[0].Value) {
+			t.Errorf("expected %s to map to %s but it didn't", s, samples[0].Value)
+		}
 	}
 }

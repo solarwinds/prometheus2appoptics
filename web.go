@@ -17,6 +17,12 @@ import (
 	"github.com/appoptics/appoptics-api-go"
 )
 
+var adapter promadapter.PrometheusAdapter
+
+func init() {
+	adapter = promadapter.NewPromAdapter()
+}
+
 // receiveHandler implements the code path for handling incoming Prometheus metrics
 func receiveHandler(prepChan chan<- []appoptics.Measurement) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -35,7 +41,7 @@ func receiveHandler(prepChan chan<- []appoptics.Measurement) http.Handler {
 		}
 
 		// TODO: make this conditional upon log level
-		convertedData := promadapter.PromDataToAppOpticsMeasurements(&data)
+		convertedData := adapter.PromDataToAppOpticsMeasurements(&data)
 		log.Println("measurements received - ", len(convertedData))
 
 		prepChan <- convertedData
@@ -75,7 +81,7 @@ func testMetricHandler(lc appoptics.ServiceAccessor) http.Handler {
 			w.Write([]byte(err.Error()))
 			return
 		}
-		mc := promadapter.PromDataToAppOpticsMeasurements(&data)
+		mc := adapter.PromDataToAppOpticsMeasurements(&data)
 		batch := &appoptics.MeasurementsBatch{
 			Measurements: mc,
 		}

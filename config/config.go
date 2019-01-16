@@ -10,7 +10,8 @@ import (
 
 // app meta
 const AppName = "prometheus2appoptics"
-var(
+
+var (
 	MajorVersion = 0
 	MinorVersion = 2
 	PatchVersion = 4
@@ -51,7 +52,6 @@ func New() *Config {
 	}
 }
 
-
 // AccessToken returns a string representing a AppOptics API token
 func AccessToken() string {
 	return globalConf.accessToken
@@ -72,7 +72,7 @@ func SendStats() bool {
 	return globalConf.sendStats
 }
 
-func PrintVersionAndExit() bool  {
+func PrintVersionAndExit() bool {
 	return printVersionAndExit
 }
 
