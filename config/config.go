@@ -7,7 +7,7 @@ import (
 	"flag"
 )
 
-// app meta
+// AppName app metadata
 const AppName = "prometheus2appoptics"
 
 // globalConf is the Config singleton
@@ -28,6 +28,7 @@ func init() {
 	globalConf = New()
 }
 
+// Config for the reporter
 type Config struct {
 	bindPort    int
 	accessEmail string
@@ -35,6 +36,7 @@ type Config struct {
 	sendStats   bool
 }
 
+// New *Config constructor
 func New() *Config {
 	return &Config{
 		bindPort:    bindPort,

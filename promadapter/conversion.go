@@ -23,7 +23,7 @@ type PrometheusAdapter interface {
 	LabelsToTags(sample *model.Sample) map[string]string
 }
 
-// Adapter: Generic Struct for exposing PrometheusAdapter transforming methods of Prometheus 2 AppOptics structs
+// Adapter Generic Struct for exposing PrometheusAdapter transforming methods of Prometheus 2 AppOptics structs
 type Adapter struct {
 	PrometheusAdapter
 }
