@@ -5,17 +5,10 @@ package config
 
 import (
 	"flag"
-	"fmt"
 )
 
 // app meta
 const AppName = "prometheus2appoptics"
-
-var (
-	MajorVersion = 0
-	MinorVersion = 2
-	PatchVersion = 4
-)
 
 // globalConf is the Config singleton
 var globalConf *Config
@@ -24,13 +17,11 @@ var globalConf *Config
 var bindPort int
 var accessToken string
 var sendStats bool
-var printVersionAndExit bool
 
 func init() {
 	flag.IntVar(&bindPort, "bind-port", 4567, "the port the HTTP server binds to")
 	flag.StringVar(&accessToken, "access-token", "", "the API token used for auth")
 	flag.BoolVar(&sendStats, "send-stats", false, "sends data on the wire if true, prints to stdout if false")
-	flag.BoolVar(&printVersionAndExit, "version", false, "print version and exit")
 
 	flag.Parse()
 
@@ -70,13 +61,4 @@ func PushErrorLimit() int {
 // SendStats returns true if the application should persist stats over the network to AppOptics, false otherwise
 func SendStats() bool {
 	return globalConf.sendStats
-}
-
-func PrintVersionAndExit() bool {
-	return printVersionAndExit
-}
-
-// VersionString returns the semver string representing the current version
-func VersionString() string {
-	return fmt.Sprintf("%d.%d.%d", MajorVersion, MinorVersion, PatchVersion)
 }

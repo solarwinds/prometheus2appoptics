@@ -22,10 +22,6 @@ var osSignalChan = make(chan os.Signal, 1)
 var stopChan chan<- bool
 
 func main() {
-	if config.PrintVersionAndExit() {
-		fmt.Printf(config.VersionString())
-		os.Exit(0)
-	}
 
 	signal.Notify(osSignalChan, os.Interrupt)
 	go handleShutdown()
@@ -33,7 +29,7 @@ func main() {
 	portString := fmt.Sprintf(":%d", config.BindPort())
 	fmt.Println("[-] Starting on ", portString)
 
-	userAgentFragment := fmt.Sprintf("%s-%s", config.AppName, config.VersionString())
+	userAgentFragment := fmt.Sprintf("%s", config.AppName)
 
 	lc := appoptics.NewClient(config.AccessToken(), appoptics.UserAgentClientOption(userAgentFragment))
 

@@ -15,6 +15,7 @@ import (
 // client library, as well as for creating API-compliant batches and using the AppOptics client to send them.
 //
 
+// PrometheusAdapter interface for exposing transforming methods of Prometheus 2 AppOptics structs
 type PrometheusAdapter interface {
 	WriteRequestToSamples(req *promremote.WriteRequest) model.Samples
 	PromDataToAppOpticsMeasurements(req *promremote.WriteRequest) []appoptics.Measurement
@@ -22,15 +23,18 @@ type PrometheusAdapter interface {
 	LabelsToTags(sample *model.Sample) map[string]string
 }
 
+// Adapter: Generic Struct for exposing PrometheusAdapter transforming methods of Prometheus 2 AppOptics structs
 type Adapter struct {
 	PrometheusAdapter
 }
 
+// NewPromAdapter creates a Prometheus Adapter which is able to tranform structs from the Prometheus Package to the AppOptics Package types
 func NewPromAdapter() PrometheusAdapter {
 	p := Adapter{}
 	return PrometheusAdapter(&p)
 }
 
+// PromDataToAppOpticsMeasurements injests a *promremote.WriteRequest and transforms it to []appoptics.Measurement
 func (p *Adapter) PromDataToAppOpticsMeasurements(req *promremote.WriteRequest) []appoptics.Measurement {
 	return p.SamplesToMeasurements(p.WriteRequestToSamples(req))
 }
