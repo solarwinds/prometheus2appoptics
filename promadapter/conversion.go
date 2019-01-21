@@ -28,7 +28,7 @@ type Adapter struct {
 	PrometheusAdapter
 }
 
-// NewPromAdapter creates a Prometheus Adapter which is able to tranform structs from the Prometheus Package to the AppOptics Package types
+// NewPromAdapter creates a Prometheus Adapter which is able to transform structs from the Prometheus Package to the AppOptics Package types
 func NewPromAdapter() PrometheusAdapter {
 	p := Adapter{}
 	return PrometheusAdapter(&p)
