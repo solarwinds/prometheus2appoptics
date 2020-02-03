@@ -36,7 +36,7 @@ remote_write:
 ## Development
 
 #### dep
-[dep](https://github.com/golang/dep) is the new official dependency tool for Go. It's still in the prototype phase, but it's totally usable. You can `brew install dep` on macOS or you can build yourself on any system that can run Go:
+As of this writing, this tool still uses [dep](https://github.com/golang/dep), but will be updated to Go modules in the very near future.
 
 `go get -u github.com/golang/dep/cmd/dep`
 
