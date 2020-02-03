@@ -10,6 +10,7 @@ import (
 	"bytes"
 
 	"github.com/appoptics/appoptics-api-go"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestReceiveHandler(t *testing.T) {
@@ -26,13 +27,8 @@ func TestReceiveHandler(t *testing.T) {
 		payload := FixtureSamplePayload()
 		resp, err := postToReceive(server, payload)
 
-		if err != nil {
-			t.Errorf("Expected no error but received %s", err.Error())
-		}
-
-		if resp.StatusCode != http.StatusAccepted {
-			t.Errorf("Expected status 202 but received %d", resp.StatusCode)
-		}
+		assert.NoError(t, err)
+		assert.Equal(t, http.StatusAccepted, resp.StatusCode)
 	})
 }
 

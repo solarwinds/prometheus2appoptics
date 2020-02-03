@@ -1,20 +1,21 @@
 package api
 
 import (
-"io/ioutil"
-"log"
-"net/http"
-"time"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"time"
 
+	log "github.com/sirupsen/logrus"
 
-"github.com/golang/protobuf/proto"
-"github.com/golang/snappy"
-"github.com/prometheus/common/model"
-promremote "github.com/prometheus/prometheus/storage/remote"
-"github.com/solarwinds/prometheus2appoptics/promadapter"
-"github.com/go-chi/chi"
+	"github.com/go-chi/chi"
+	"github.com/golang/protobuf/proto"
+	"github.com/golang/snappy"
+	"github.com/prometheus/common/model"
+	promremote "github.com/prometheus/prometheus/storage/remote"
+	"github.com/solarwinds/prometheus2appoptics/promadapter"
 
-"github.com/appoptics/appoptics-api-go"
+	"github.com/appoptics/appoptics-api-go"
 )
 
 var adapter promadapter.PrometheusAdapter
@@ -41,21 +42,21 @@ func receiveHandler(prepChan chan<- []appoptics.Measurement) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		compressed, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			log.Println(err)
+			log.Error(err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		data, err := processRequestData(compressed)
 		if err != nil {
-			log.Println(err)
+			log.Error(err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
-		// TODO: make this conditional upon log level
 		convertedData := adapter.PromDataToAppOpticsMeasurements(&data)
-		log.Println("measurements received - ", len(convertedData))
+		msg := fmt.Sprintf("measurements received - %d", len(convertedData))
+		log.Debug(msg)
 
 		prepChan <- convertedData
 		w.WriteHeader(http.StatusAccepted)
@@ -78,8 +79,8 @@ func testMetricHandler(lc appoptics.ServiceAccessor) http.HandlerFunc {
 		resp, err := lc.MeasurementsService().Create(batch)
 
 		if resp == nil {
-			log.Println("*http.Response was nil")
-			log.Println(err)
+			log.Error("*http.Response was nil")
+			log.Error(err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}

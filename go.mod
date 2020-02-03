@@ -24,6 +24,7 @@ require (
 	github.com/prometheus/procfs v0.0.0-20180125133057-cb4147076ac7
 	github.com/prometheus/prometheus v1.8.2
 	github.com/sirupsen/logrus v1.0.6
+	github.com/stretchr/testify v1.2.2
 	github.com/syndtr/goleveldb v0.0.0-20180128140416-211f78098806
 	golang.org/x/crypto v0.0.0-20180802221240-56440b844dfe
 	golang.org/x/net v0.0.0-20180801234040-f4c29de78a2a

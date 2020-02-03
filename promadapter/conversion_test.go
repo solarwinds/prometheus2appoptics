@@ -1,16 +1,20 @@
 package promadapter
 
 import (
-	promremote "github.com/prometheus/prometheus/storage/remote"
 	"testing"
 	"time"
 
+	promremote "github.com/prometheus/prometheus/storage/remote"
+
 	"github.com/prometheus/common/model"
+	"github.com/stretchr/testify/assert"
 )
 
-var metricNameFixture = "rpc_widget_count"
-var valueFixture = 3.1415
-var timestampFixture = time.Now().UTC().Unix()
+var (
+	metricNameFixture = "rpc_widget_count"
+	valueFixture      = 3.1415
+	timestampFixture  = time.Now().UTC().Unix()
+)
 
 var labels = model.LabelSet{
 	model.LabelName(model.MetricNameLabel): model.LabelValue(metricNameFixture),
@@ -35,17 +39,10 @@ func TestSamplesToMeasurements(t *testing.T) {
 		castValue := float64(promSamples[i].Value)
 		castName := string(promSamples[i].Metric[model.MetricNameLabel])
 
-		if castTime != measurement.Time {
-			t.Errorf("expected %d to match %d", castTime, measurement.Time)
-		}
+		assert.Equal(t, castTime, measurement.Time)
+		assert.Equal(t, castName, measurement.Name)
+		assert.Equal(t, castValue, measurement.Value)
 
-		if castValue != measurement.Value {
-			t.Errorf("expected %f to match %f", castValue, measurement.Value)
-		}
-
-		if castName != measurement.Name {
-			t.Errorf("expected %s to match %s", castName, measurement.Name)
-		}
 	}
 }
 
@@ -55,10 +52,7 @@ func TestLabelsToTags(t *testing.T) {
 	tags := adapter.LabelsToTags(sample)
 	for k, v := range tags {
 		labelName := model.LabelName(k)
-		if model.LabelValue(v) != sample.Metric[labelName] {
-			t.Errorf("expected %s to map to %s but it didn't", k, sample.Metric[labelName])
-		}
-
+		assert.Equal(t, model.LabelValue(v), sample.Metric[labelName])
 	}
 }
 
@@ -77,8 +71,6 @@ func TestWriteRequestToSamples(t *testing.T) {
 	modelSamples := adapter.PromDataToAppOpticsMeasurements(&wr)
 
 	for _, s := range modelSamples {
-		if int(s.Value.(float64)) != int(samples[0].Value) {
-			t.Errorf("expected %s to map to %s but it didn't", s, samples[0].Value)
-		}
+		assert.Equal(t, int(s.Value.(float64)), int(samples[0].Value))
 	}
 }
