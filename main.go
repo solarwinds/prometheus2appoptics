@@ -6,6 +6,8 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/solarwinds/prometheus2appoptics/internal/app/api"
+
 	"os"
 
 	"github.com/solarwinds/prometheus2appoptics/config"
@@ -13,16 +15,11 @@ import (
 	"github.com/appoptics/appoptics-api-go"
 )
 
-// startTime helps us collect information on how long this process runs
 var startTime = time.Now().UTC()
-
-// osSignalChan is used to handle SIGINT
 var osSignalChan = make(chan os.Signal, 1)
-
-var stopChan chan<- bool
+var stopChan chan<- struct{}
 
 func main() {
-
 	signal.Notify(osSignalChan, os.Interrupt)
 	go handleShutdown()
 
@@ -31,18 +28,14 @@ func main() {
 
 	userAgentFragment := fmt.Sprintf("%s", config.AppName)
 
-	lc := appoptics.NewClient(config.AccessToken(), appoptics.UserAgentClientOption(userAgentFragment))
+	aoClient := appoptics.NewClient(config.AccessToken(), appoptics.UserAgentClientOption(userAgentFragment))
 
-	bp := appoptics.NewBatchPersister(lc.MeasurementsService(), config.SendStats())
+	bp := appoptics.NewBatchPersister(aoClient.MeasurementsService(), config.SendStats())
 	bp.BatchAndPersistMeasurementsForever()
 
 	stopChan = bp.MeasurementsStopBatchingChannel()
 
-	http.Handle("/receive", receiveHandler(bp.MeasurementsSink()))
-	http.Handle("/spaces", listSpacesHandler(lc))
-	http.Handle("/test", testMetricHandler(lc))
-
-	http.ListenAndServe(portString, nil)
+	http.ListenAndServe(portString, api.App(aoClient, bp)) //nolint:errcheck
 }
 
 // handleShutdown defines the behavior of the application when it receives SIGINT
@@ -51,6 +44,6 @@ func handleShutdown() {
 	runDuration := time.Since(startTime) / time.Second
 	fmt.Println("\n[-] Sending stop signal and shutting down")
 	fmt.Printf("[-] Process ran for %d seconds\n", runDuration)
-	stopChan <- true
+	stopChan <- struct{}{}
 	os.Exit(0)
 }

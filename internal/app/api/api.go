@@ -1,20 +1,20 @@
-package main
+package api
 
 import (
-	"io/ioutil"
-	"log"
-	"net/http"
-	"time"
+"io/ioutil"
+"log"
+"net/http"
+"time"
 
-	"fmt"
 
-	"github.com/golang/protobuf/proto"
-	"github.com/golang/snappy"
-	"github.com/prometheus/common/model"
-	promremote "github.com/prometheus/prometheus/storage/remote"
-	"github.com/solarwinds/prometheus2appoptics/promadapter"
+"github.com/golang/protobuf/proto"
+"github.com/golang/snappy"
+"github.com/prometheus/common/model"
+promremote "github.com/prometheus/prometheus/storage/remote"
+"github.com/solarwinds/prometheus2appoptics/promadapter"
+"github.com/go-chi/chi"
 
-	"github.com/appoptics/appoptics-api-go"
+"github.com/appoptics/appoptics-api-go"
 )
 
 var adapter promadapter.PrometheusAdapter
@@ -23,9 +23,22 @@ func init() {
 	adapter = promadapter.NewPromAdapter()
 }
 
+func App(aoClient *appoptics.Client, bp *appoptics.BatchPersister) http.Handler {
+	r := chi.NewRouter()
+
+	r.Get("/healthz", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("healthy!")) //nolint:errcheck
+	})
+
+	r.Post("/receive", receiveHandler(bp.MeasurementsSink()))
+	r.Post("/test", testMetricHandler(aoClient))
+
+	return r
+}
+
 // receiveHandler implements the code path for handling incoming Prometheus metrics
-func receiveHandler(prepChan chan<- []appoptics.Measurement) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func receiveHandler(prepChan chan<- []appoptics.Measurement) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		compressed, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			log.Println(err)
@@ -46,35 +59,12 @@ func receiveHandler(prepChan chan<- []appoptics.Measurement) http.Handler {
 
 		prepChan <- convertedData
 		w.WriteHeader(http.StatusAccepted)
-	})
-}
-
-// listSpacesHandler returns the AppOptics Spaces on the associated account and can be used as a test for credentials
-func listSpacesHandler(lc appoptics.ServiceAccessor) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		spaces, resp, err := lc.SpacesService().List()
-
-		if err != nil {
-			if resp == nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-
-			log.Println(err)
-			w.WriteHeader(resp.StatusCode)
-			w.Write([]byte(err.Error()))
-			return
-		}
-
-		for _, space := range spaces {
-			fmt.Printf("%+v\n", space)
-		}
-	})
+	}
 }
 
 // testMetricHandler sends a single fixture test Metric to AppOptics and is used in debugging
-func testMetricHandler(lc appoptics.ServiceAccessor) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func testMetricHandler(lc appoptics.ServiceAccessor) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		data, err := processRequestData(FixtureSamplePayload())
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -99,7 +89,7 @@ func testMetricHandler(lc appoptics.ServiceAccessor) http.Handler {
 		if err != nil {
 			w.Write([]byte(err.Error()))
 		}
-	})
+	}
 }
 
 // processRequestData returns a Prometheus remote storage WriteRequest from the raw HTTP body data
