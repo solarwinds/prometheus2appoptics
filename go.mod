@@ -2,12 +2,10 @@ module github.com/solarwinds/prometheus2appoptics
 
 go 1.13
 
-replace github.com/appoptics/appoptics-api-go => /Users/trevor/LocalCode/go/src/github.com/appoptics/appoptics-api-go
-
 require (
 	github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc
 	github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf
-	github.com/appoptics/appoptics-api-go v0.0.0-20180201165859-2cbca4f36e0f
+	github.com/appoptics/appoptics-api-go v0.5.5
 	github.com/aws/aws-sdk-go v1.12.70
 	github.com/beorn7/perks v0.0.0-20160804104726-4c0e84591b9a
 	github.com/go-chi/chi v4.0.3+incompatible

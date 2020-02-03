@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus2appoptics
+  labels:
+    app: prometheus2appoptics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus2appoptics
+  template:
+    metadata:
+      labels:
+        app: prometheus2appoptics
+    spec:
+      containers:
+        - name: prometheus2appoptics
+          image: solarwinds/prometheus2appoptics
+          command: ["/go/bin/prometheus2appoptics"]
+          env:
+            - name: SEND_STATS
+              value: true
+            - name: APPOPTICS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: tm-alerts-db
+                  key: password

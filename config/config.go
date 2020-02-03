@@ -5,26 +5,20 @@ package config
 
 import (
 	"flag"
+	"os"
 )
 
 // AppName app metadata
 const AppName = "prometheus2appoptics"
 
-// globalConf is the Config singleton
-var globalConf *Config
-
-// Flag vars
-var bindPort int
-var accessToken string
-var sendStats bool
+var (
+	globalConf *Config
+	bindPort   int
+)
 
 func init() {
 	flag.IntVar(&bindPort, "bind-port", 4567, "the port the HTTP server binds to")
-	flag.StringVar(&accessToken, "access-token", "", "the API token used for auth")
-	flag.BoolVar(&sendStats, "send-stats", false, "sends data on the wire if true, prints to stdout if false")
-
 	flag.Parse()
-
 	globalConf = New()
 }
 
@@ -32,22 +26,18 @@ func init() {
 type Config struct {
 	bindPort    int
 	accessEmail string
-	accessToken string
-	sendStats   bool
 }
 
 // New *Config constructor
 func New() *Config {
 	return &Config{
-		bindPort:    bindPort,
-		accessToken: accessToken,
-		sendStats:   sendStats,
+		bindPort: bindPort,
 	}
 }
 
 // AccessToken returns a string representing a AppOptics API token
 func AccessToken() string {
-	return globalConf.accessToken
+	return os.Getenv("APPOPTICS_TOKEN")
 }
 
 // BindPort returns the port number that the service is bound to
@@ -62,5 +52,5 @@ func PushErrorLimit() int {
 
 // SendStats returns true if the application should persist stats over the network to AppOptics, false otherwise
 func SendStats() bool {
-	return globalConf.sendStats
+	return os.Getenv("SEND_STATS") != ""
 }

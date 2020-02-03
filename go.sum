@@ -2,6 +2,8 @@ github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc h1:cAKDfWh5Vpd
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf h1:qet1QNfXsQxTZqLG4oE62mJzwPIB8+Tee4RNCL9ulrY=
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=
+github.com/appoptics/appoptics-api-go v0.5.5 h1:OJZMfmBQ4Hv9jHwndxJE5cdr+I957JuLWHBAoSvOHGY=
+github.com/appoptics/appoptics-api-go v0.5.5/go.mod h1:wXPiQHhhV/ITjwshpxd3IACaFmEO9IsCCqnrlxEmmB0=
 github.com/aws/aws-sdk-go v1.12.70 h1:rMdb/jACFOE7uJ6govc9kS6rzytrRnW2H2NHBCwkowE=
 github.com/aws/aws-sdk-go v1.12.70/go.mod h1:ZRmQr0FajVIyZ4ZzBYKG5P3ZqPz9IHG41ZoMu1ADI3k=
 github.com/beorn7/perks v0.0.0-20160804104726-4c0e84591b9a h1:BtpsbiV638WQZwhA98cEZw2BsbnQJrbd0BI7tsy0W1c=
