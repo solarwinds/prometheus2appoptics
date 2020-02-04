@@ -35,20 +35,9 @@ remote_write:
 
 ## Development
 
-#### dep
-As of this writing, this tool still uses [dep](https://github.com/golang/dep), but will be updated to Go modules in the very near future.
+Create the bin with
 
-`go get -u github.com/golang/dep/cmd/dep`
-
-
-#### prometheus2appoptics
-Assuming you have a standard Go environment with a checkout of the prometheus2appoptics code in the normal place and the `dep` tool in your `$PATH`, you can install the project's dependencies with:
-
-`dep ensure`
-
-Then create the bin with
-
-`make`
+`make build`
 
 prometheus2appoptics supports [several runtime flags](https://github.com/solarwinds/prometheus2appoptics/blob/master/config/config.go#L29-L32) for configuration:
 

@@ -2,12 +2,11 @@
 
 image_name := solarwinds/prometheus2appoptics
 app_name := prometheus2appoptics
-excluding_vendor := $(shell go list ./... | grep -v /vendor/)
 
 default: build
 
 build:
-	go build -i -o $(app_name)
+	go build -i -ldflags="-s -w" -o $(app_name)
 
 clean:
 	rm -f $(app_name)
@@ -16,20 +15,19 @@ run:
 	make build && ./$(app_name)
 
 docker:
-	GOOS=linux GOARCH=amd64 go build && docker build -t $(image_name) . && make clean && make build
+	docker build -t solarwinds/$(app_name):latest .
 
 publish:
 	make docker && docker push $(image_name)
 
-
 test:
-	go test -v $(excluding_vendor)
+	go test -v ./...
 
 doc:
 	godoc -http=:8080 -index
 
 vet:
-	go vet ./..
+	go vet ./...
 
 release:
 	make build

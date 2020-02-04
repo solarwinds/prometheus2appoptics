@@ -2,9 +2,11 @@ version: 2
 jobs:
   build:
     docker:
-      - image: solarwinds/prometheus2appoptics:0.1_ci
+      - image: circleci/golang:1.13
     working_directory: /go/src/github.com/solarwinds/prometheus2appoptics
     steps:
       - checkout
-      - run: dep ensure
-      - run: make test
+      - run:
+          name: "Unit Tests"
+          when: always
+          command: make test

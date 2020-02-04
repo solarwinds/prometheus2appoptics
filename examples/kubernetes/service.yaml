@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus2appoptics
+  labels:
+    app: prometheus2appoptics
+spec:
+  selector:
+    app: prometheus2appoptics
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 4567
