@@ -6,7 +6,7 @@ app_name := prometheus2appoptics
 default: build
 
 build:
-	go build -i -ldflags="-s -w" -o $(app_name)
+	CGO_ENABLED=0 go build -i -ldflags="-s -w" -o $(app_name)
 
 clean:
 	rm -f $(app_name)
